@@ -1,0 +1,27 @@
+Timeline
+
+06/08/2025
+    Objective
+        - Find its personally: project name/shtick/originality (USE OUR BRAINS)
+
+    Results
+        - 
+
+06/10/2025 - 06/18/2025
+    Objective
+        - Thomas gone
+        - Christian to learn go
+        - Start up on lexer?
+        - look into table-driven lexers
+
+    Results
+        - 
+    
+06/19/2025
+    Objective
+        - Golang code review
+        - Continue work on lexer
+        - Lexer tests
+
+    Results
+        - 

@@ -1,0 +1,70 @@
+Project Objective
+
+what is our niche?
+    1. minimal not verbose
+    2. funny substitutes 
+    3. rust borrow checker miminal implementation (not as bitchy)
+        a. ownership
+        b. mutable ref counting
+        c. etc
+    4. bigger number support
+    5. write concurrent code?
+    6. Theme? 
+        1. Sea? 
+
+- lexer: tokenize code (maybe table driven)
+
+    Write BNF Grammer Rules
+
+c99
+    - static types
+    - complex data types (struct, enum)
+    - reserved keywords (int, float, etc)
+    - flow control (for, while, switch, etc)
+    - logical operators (+, /, *, %, :=, !, !=, //, -, &, <<, >>, |, &&, ||, ^, "")
+    - {}, (), []
+    - fns (some coming from c?)
+us
+    - in-line assembly
+    - our custom reserved words
+    - decorators? (unsafe use)
+
+- parser: turn tokens to meaning (t)
+c99
+    - recursive decent
+    - ast
+us
+    - RPN?
+
+- semantic analysis (rules of the language, bad coding practice, compiler errors)
+c99
+    - warnings
+        1. unused things (var, fn, etc)
+        2. unreachable code
+        3. value never read
+        4. uninitialized
+        5. implicit type conversion
+
+    - errors
+        1. missing return types
+        2. type mismatch
+        3. calling undefined anything
+        4. use before initialized
+        5. syntax error
+        6. function signature mismatch
+us
+    - warnings
+        1. naming conventions
+        2. variable redeclared 
+
+    - errors
+        1. complex data struct redeclared
+        2. unsafe without decorator
+
+    - borrow checking errors
+        1. mutiple mutable ref
+        2. mutable and unmutable reference
+        3. ownership rules (use after owner change)
+
+- code gen (QBE, proc, scc)
+    - tbd
