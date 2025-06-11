@@ -20,3 +20,19 @@ type Token struct {
 	row           int
 	col           int
 }
+
+func (t *Token) GetTokenContent() string {
+	return t.token_content
+}
+
+func (t *Token) GetTokenType() TokenType {
+	return t.token_type
+}
+
+func (t *Token) GetRow() int {
+	return t.row
+}
+
+func (t *Token) GetCol() int {
+	return t.col
+}

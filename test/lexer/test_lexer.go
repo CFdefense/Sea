@@ -2,38 +2,37 @@ package test
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"slices"
 
-	"github.com/username/go-compiler/src/lexer"
+	"github.com/CFdefense/compiler/src/lexer"
 )
 
-const LEXER_TEST_DIR = "./lexer/tests/"
+const LEXER_TEST_DIR = "./test/lexer/tests/"
 
 type TestCase struct {
-	TestName        string        `json:"test_name"`
-	TestDescription string        `json:"test_description"`
-	TestContent     string        `json:"test_content"`
-	ExpectedResult  []lexer.Token `json:"expected_result"`
+	TestName        string   `json:"test_name"`
+	TestDescription string   `json:"description"`
+	TestContent     string   `json:"code"`
+	ExpectedResult  []string `json:"result"` // Changed to []string for token content
 }
 
 type TestResult struct {
 	TestCase TestCase
 	Result   bool
-	Expected []lexer.Token
-	Actual   []lexer.Token
+	Expected []string      // Expected token content
+	Actual   []lexer.Token // Actual tokens
 }
 
 // function to iterate over all lexer test cases
 // will compare actual token stream results to expected
-func RunLexerTests() {
+func RunLexerTests() []TestResult {
 	var test_results []TestResult
 
 	// get all lexer json test files
-	files, err := ioutil.ReadDir(LEXER_TEST_DIR)
+	files, err := os.ReadDir(LEXER_TEST_DIR)
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)
 	}
@@ -50,11 +49,13 @@ func RunLexerTests() {
 
 			// execute tests and add results to test results
 			for _, test := range tests {
+
 				lexer_ctx := lexer.CreateLexer(test.TestContent)
 
 				// get results and compare to expected
 				token_stream_result := lexer_ctx.GetTokenStream()
-				result := slices.Equal(token_stream_result, test.ExpectedResult)
+
+				result := compareTokenContent(token_stream_result, test.ExpectedResult)
 
 				// Create a TestResult instance
 				test_result := TestResult{
@@ -69,6 +70,29 @@ func RunLexerTests() {
 			}
 		}
 	}
+
+	return test_results
+}
+
+// compareTokenContent compares a slice of tokens with a slice of expected token content strings
+func compareTokenContent(actual []lexer.Token, expected []string) bool {
+	// compare token streamlengths
+	if len(actual) != len(expected) {
+		return false
+	}
+
+	// Compare token content after length check
+	allMatch := true
+	for i, token := range actual {
+		actualContent := token.GetTokenContent()
+		expectedContent := expected[i]
+		match := actualContent == expectedContent
+		if !match {
+			allMatch = false
+		}
+	}
+
+	return allMatch
 }
 
 // function to unmarshal json file into a slice of test cases
@@ -77,13 +101,18 @@ func process_json_file(fullPath string) ([]TestCase, error) {
 
 	jsonFile, err := os.Open(fullPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open JSON file %s: %w", fullPath, err)
 	}
 	defer jsonFile.Close()
 
-	// decode json file into slice of test cases
 	decoder := json.NewDecoder(jsonFile)
-	err = decoder.Decode(&tests)
+	if err := decoder.Decode(&tests); err != nil {
+		return nil, fmt.Errorf("failed to decode JSON in %s: %w", fullPath, err)
+	}
 
-	return tests, err
+	if len(tests) == 0 {
+		log.Printf("Warning: no test cases found in %s. Possible format mismatch?", fullPath)
+	}
+
+	return tests, nil
 }

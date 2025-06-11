@@ -1,3 +1,3 @@
-module github.com/username/go-compiler
+module github.com/CFdefense/compiler
 
 go 1.24.3
