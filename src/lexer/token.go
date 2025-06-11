@@ -1,4 +1,4 @@
-package main
+package lexer
 
 // 'Enum' for token types
 // using iota assigns successive integer values
@@ -19,12 +19,4 @@ type Token struct {
 	token_content string
 	row           int
 	col           int
-}
-
-// Lexer context object
-type Lexer struct {
-	token_stream []Token
-	content      string
-	row          int
-	col          int
 }
