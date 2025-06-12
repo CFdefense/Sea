@@ -19,12 +19,12 @@ func InitializeLexer() *Lexer {
 }
 
 // function responsible for all things lexical analysis
-func (l *Lexer) LexicalAnalysis() {
+func (l *Lexer) LexicalAnalysis(path string) {
 
 	// begin lexer scan of target file
 	// might want to change this to target directory
 	// depending on future limits/scope
-	l.Scan()
+	l.Scan(path)
 
 	// begin lexer analyze
 	// this will turn our scanned content into
@@ -33,9 +33,10 @@ func (l *Lexer) LexicalAnalysis() {
 }
 
 // function to allow the lexer to scan
-// current implementation is file based
-// might want to change to directory based
-func (l *Lexer) Scan() {
+// going to implement directory based
+// this will allow future scaling to
+// 'project-compilation' vs 'file-compilation'
+func (l *Lexer) Scan(path string) {
 	// TODO Scanning files
 }
 

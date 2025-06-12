@@ -11,6 +11,7 @@ what is our niche?
     5. write concurrent code?
     6. Theme? 
         1. Sea? 
+        2. Wake?
 
 - lexer: tokenize code (maybe table driven)
 

@@ -10,11 +10,12 @@ import (
 // main entry point for the compiler
 func main() {
 	// parse command line argumentsd
-	runTests := flag.Bool("test", false, "Run all compiler tests")
+	run_tests := flag.Bool("test", false, "Run all compiler tests")
+	target_path := flag.String("path", "", "Directory to compile")
 	flag.Parse()
 
 	// optionally run tests
-	if *runTests {
+	if *run_tests {
 		test.RunTests()
 	}
 
@@ -22,7 +23,7 @@ func main() {
 	compiler_ctx := compiler.InitializeCompiler()
 
 	// start lexical analysis
-	compiler_ctx.BeginLexicalAnalysis()
+	compiler_ctx.BeginLexicalAnalysis(*target_path)
 
 	// TODO add next steps
 

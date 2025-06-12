@@ -17,6 +17,6 @@ func InitializeCompiler() *Compiler {
 
 // function to initiate lexical
 // TODO: pass necessary path information
-func (c *Compiler) BeginLexicalAnalysis() {
-	c.lexer.LexicalAnalysis()
+func (c *Compiler) BeginLexicalAnalysis(path string) {
+	c.lexer.LexicalAnalysis(path)
 }
