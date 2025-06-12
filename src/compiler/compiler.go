@@ -1,22 +1,27 @@
 package compiler
 
-import "github.com/CFdefense/compiler/src/lexer"
+import (
+	debugger "github.com/CFdefense/compiler/src/debug"
+	"github.com/CFdefense/compiler/src/lexer"
+)
 
 // main compiler struct to hold all compiler components
 // TODO add the rest of the components
 type Compiler struct {
 	lexer *lexer.Lexer
+	debug *debugger.Debug
 }
 
 // compiler constructor
-func InitializeCompiler() *Compiler {
+// can have a debug mode for verbose outputs
+func InitializeCompiler(debug bool) *Compiler {
 	return &Compiler{
-		lexer.InitializeLexer(),
+		lexer: lexer.InitializeLexer(debug),
+		debug: debugger.InitializeDebugger("CMP", debug),
 	}
 }
 
 // function to initiate lexical
-// TODO: pass necessary path information
 func (c *Compiler) BeginLexicalAnalysis(path string) {
 	c.lexer.LexicalAnalysis(path)
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/CFdefense/compiler/src/compiler"
@@ -10,36 +10,40 @@ import (
 )
 
 func main() {
-	// Parse command-line flags
+	// initialize command-line flags
 	runTests := flag.String("test", "", "Run compiler test suite (e.g., lexer)")
 	targetPath := flag.String("path", "", "Directory to compile")
+	debugMode := flag.Bool("debug", false, "Enable verbose debug mode")
+
+	// parse the inputted command-line flags
 	flag.Parse()
 
-	// Run tests if requested
+	// run tests if requested
+	// TODO add other component tests
 	if *runTests != "" {
 		switch *runTests {
 		case "lexer":
-			test.RunTests()
+			test.RunTests(*debugMode)
 		default:
-			fmt.Fprintf(os.Stderr, "Unknown test target: %s\n", *runTests)
+			log.Printf("Unknown test target: %s\n", *runTests)
 			os.Exit(1)
 		}
-		fmt.Println("Tests Completed -> Exiting...")
+		log.Println("Tests Completed -> Exiting...")
 		return
 	}
 
-	// Ensure a path is provided if were not running tests
+	// ensure a path is provided if were not running tests
 	if *runTests == "" && *targetPath == "" {
-		fmt.Fprintln(os.Stderr, "Error: no path provided. Use -path to specify source directory.")
+		log.Println("Error: no path provided. Use -path to specify source directory.")
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	// Begin compilation process
-	fmt.Printf("Compiling project at: %s\n", *targetPath)
+	// begin compilation process
+	log.Printf("Compiling project at: %s\n", *targetPath)
 
 	// create the compiler ctx
-	compiler_ctx := compiler.InitializeCompiler()
+	compiler_ctx := compiler.InitializeCompiler(*debugMode)
 
 	// start lexical analysis
 	compiler_ctx.BeginLexicalAnalysis(*targetPath)

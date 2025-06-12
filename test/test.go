@@ -7,8 +7,8 @@ import (
 )
 
 // function to run all tests
-func RunTests() {
-	lexer_tests := lexer_test.RunLexerTests()
+func RunTests(debug bool) {
+	lexer_tests := lexer_test.RunLexerTests(debug)
 
 	fmt.Println("Lexer Tests:")
 	fmt.Println("--------------------------------")
