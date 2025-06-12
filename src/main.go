@@ -24,4 +24,6 @@ func main() {
 	// start lexical analysis
 	compiler_ctx.BeginLexicalAnalysis()
 
+	// TODO add next steps
+
 }

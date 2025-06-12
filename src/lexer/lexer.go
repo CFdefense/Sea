@@ -36,13 +36,13 @@ func (l *Lexer) LexicalAnalysis() {
 // current implementation is file based
 // might want to change to directory based
 func (l *Lexer) Scan() {
-
+	// TODO Scanning files
 }
 
 // function to begin analysis
 // will result in scan -> token stream
 func (l *Lexer) Analyze() {
-
+	// TODO Analyze and create token stream
 }
 
 // function to reset a lexer
