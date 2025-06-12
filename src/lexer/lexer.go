@@ -49,23 +49,22 @@ func (l *Lexer) LexicalAnalysis(path string) {
 // 'project-compilation' vs 'file-compilation'
 func (l *Lexer) Scan(path string) {
 	// open target directory
+	l.debug.DebugLog(fmt.Sprintf("Beginning Lexer Scan on Directory: %v", path), false)
 	files, err := os.ReadDir(path)
 
-	l.debug.DebugLog(fmt.Sprintf("Beginning Lexer Scan on Directory: %v", path), false)
-
-	if err != nil {
-		l.debug.DebugLog(fmt.Sprintf("Failed to read directory: %v", err), true)
-	}
-
-	// collect file names for debug output
 	var fileNames []string
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".txt" {
 			fileNames = append(fileNames, file.Name())
 		}
+	}
+	l.debug.DebugLog(fmt.Sprintf("Found Files: %v", fileNames), false)
 
-		l.debug.DebugLog(fmt.Sprintf("Found Files: [%s]", fmt.Sprintf("%v", fileNames)[1:len(fmt.Sprintf("%v", fileNames))-1]), false)
+	if err != nil {
+		l.debug.DebugLog(fmt.Sprintf("Failed to read directory: %v", err), true)
+	}
 
+	for _, file := range files {
 		// open the file and read entire file contents
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".txt" {
 			// Use filepath.Join to create the full path
@@ -84,8 +83,7 @@ func (l *Lexer) Scan(path string) {
 
 			l.debug.DebugLog(fmt.Sprintf("Opened File: %v", file.Name()), false)
 			l.debug.DebugLog("Found Data:", false)
-			lines := strings.Split(string(data), "\n")
-			for _, line := range lines {
+			for line := range strings.SplitSeq(string(data), "\n") {
 				l.debug.DebugLog(fmt.Sprintf("\t%s", line), false)
 			}
 		}

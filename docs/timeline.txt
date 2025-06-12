@@ -9,13 +9,15 @@ Timeline
 
 06/10/2025 - 06/18/2025
     Objective
-        - Thomas gone
-        - Christian to learn go
-        - Start up on lexer?
-        - look into table-driven lexers
+        - Thomas gone                           ✓
+        - Christian to learn go                 ✓
+        - Start up on lexer?                    ✓
+        - look into table-driven lexers         ✓
 
     Results
-        - 
+        - Started up on the lexer/compiler and made test structure
+        - Couldnt find much information on table-driven lexers
+        - Found a modern approach using grammar automaton and regex
     
 06/19/2025
     Objective
