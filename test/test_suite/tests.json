@@ -1,0 +1,11 @@
+[
+    {
+        "test_name": "Hello World",
+        "description": "Simple Hello World Program",
+        "test_directory": "/test_cases/01_hello_world/",
+        "expected_lexer": ["Token1", "Token2"],
+        "expected_parser": "",
+        "expected_CST": "",
+        "expected_code_gen": ""
+    }
+]

@@ -16,21 +16,21 @@ type TestCase struct {
 	TestName        string   `json:"test_name"`
 	TestDescription string   `json:"description"`
 	TestContent     string   `json:"code"`
-	ExpectedResult  []string `json:"result"` // Changed to []string for token content
+	ExpectedResult  []string `json:"result"`
 }
 
 type TestResult struct {
 	TestCase TestCase
 	Result   bool
-	Expected []string      // Expected token content
-	Actual   []lexer.Token // Actual tokens
+	Expected []string
+	Actual   []lexer.Token
 }
 
 // function to iterate over all lexer test cases
 // will compare actual token stream results to expected
-func RunLexerTests() []TestResult {
+func RunLexerTests(debug bool) []TestResult {
 	var test_results []TestResult
-	l := lexer.InitializeLexer()
+	l := lexer.InitializeLexer(debug)
 
 	// get all lexer json test files
 	files, err := os.ReadDir(LEXER_TEST_DIR)
