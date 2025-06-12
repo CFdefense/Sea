@@ -1,0 +1,4 @@
+** Lexer **
+- NFA: https://www.youtube.com/watch?v=W8Uu0inPmU8
+- DFA: https://www.youtube.com/watch?v=PK3wL7DXuuw
+ 
