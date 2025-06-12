@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 
-	test "github.com/CFdefense/compiler/test"
+	"github.com/CFdefense/compiler/src/compiler"
+	"github.com/CFdefense/compiler/test"
 )
 
 // main entry point for the compiler
@@ -17,6 +18,10 @@ func main() {
 		test.RunTests()
 	}
 
-	// TODO: run compiler
+	// create the compiler ctx
+	compiler_ctx := compiler.InitializeCompiler()
+
+	// start lexical analysis
+	compiler_ctx.BeginLexicalAnalysis()
 
 }

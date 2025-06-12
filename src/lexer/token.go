@@ -5,7 +5,7 @@ package lexer
 // 1. Define allowed tokens using regex
 // 2. Convert Regex to NFA (Thompson's Algorithm)
 // 3. Compute ε-Closure of States
-// 4. Convert NFA to DFA 
+// 4. Convert NFA to DFA
 //
 //
 
@@ -14,31 +14,28 @@ package lexer
 // ie: first defined token is 0, second is 1 etc
 type TokenType int
 
-// token enum definitions
+// token category enum definitions
 const (
-	T_OPENING_BRACE TokenType = iota	// '{'
-	T_CLOSING_BRACE						// '}'
-	T_OPENING_PAREN						// '('
-	T_CLOSING_PAREN						// ')'
-	T_OPENING_BRACK						// '['
-	T_CLOSING_BRACK						// ']'
-	T_OP_PLUS							// '+'
-	T_OP_DASH							// '
-	T_OP_SLASH
-	T_OP_
-	
+	T_IDENTIFIER TokenType = iota
+	T_OPERATOR
+	T_CONSTANT
+	T_KEYWORD
+	T_LITERAL
+	T_PUNCTUATOR
+	T_SPECIAL
+	T_UNKNOWN
 )
 
 // Individual token object
 type Token struct {
-	token_type    TokenType
-	token_content string
-	row           int
-	col           int
+	token_type TokenType
+	lexeme     string
+	row        int
+	col        int
 }
 
 func (t *Token) GetTokenContent() string {
-	return t.token_content
+	return t.lexeme
 }
 
 func (t *Token) GetTokenType() TokenType {

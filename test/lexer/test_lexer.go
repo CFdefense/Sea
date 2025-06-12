@@ -30,6 +30,7 @@ type TestResult struct {
 // will compare actual token stream results to expected
 func RunLexerTests() []TestResult {
 	var test_results []TestResult
+	l := lexer.InitializeLexer()
 
 	// get all lexer json test files
 	files, err := os.ReadDir(LEXER_TEST_DIR)
@@ -50,10 +51,11 @@ func RunLexerTests() []TestResult {
 			// execute tests and add results to test results
 			for _, test := range tests {
 
-				lexer_ctx := lexer.CreateLexer(test.TestContent)
+				// reset lexer in between uses
+				l.ResetLexer()
 
 				// get results and compare to expected
-				token_stream_result := lexer_ctx.GetTokenStream()
+				token_stream_result := l.GetTokenStream()
 
 				result := compareTokenContent(token_stream_result, test.ExpectedResult)
 
