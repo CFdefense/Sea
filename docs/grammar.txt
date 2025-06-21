@@ -1,5 +1,61 @@
 // The working grammar spec for "Sea"
 
+// programs consist of a set of zero or more complex objects
+program = complex_object_list ;
+
+// a list of complex objects, or empty
+complex_object_list = complex_object complex_object_list |
+		      ε ;
+
+// complex objects available in Sea
+complex_object = function | enum | struct | const ;
+
+// function definitions
+function = decorator type id "(" param_list ")" block ;
+
+// a decorator is "@" followed by an id, or blank
+decorator = "@" id | ε ;
+
+// list of parameters of a function
+param_list = param "," param_list | param | ε ;
+
+// parameter of a function
+param = type id ;
+
+// code blocks and statements
+block = "{" statement_list "}" ;
+
+statement_list = statement statement_list | ε ;
+
+statement = var_decl |
+	    assignment_statement |
+	    if_statement |
+	    while_statement |
+	    match_statement |
+	    block |
+	    expr ";" ;
+
+var_decl = type id ";" ;
+
+assignment_statement = id "=" expr ";" ;
+
+if_statement = "if" boolean_expr block ;
+
+while_statement = "while" boolean_expr block ;
+
+match_statement = "match" condition match_block ;
+
+condition = "(" vardecl ")" | ε ;
+
+match_block = "{" armlist "}" ;
+
+armlist = armlist | arm ;
+
+arm = expr | condition "=>" block ;
+
+// somewhere here we need an expr name/expansion
+expr = int_expr ;
+
 // mathematical operators
 mathop = "+" | "-" | "*" | "/" | "%" |
          "!" | "//" | "<<" | ">>" ;
