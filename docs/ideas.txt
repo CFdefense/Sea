@@ -1,0 +1,17 @@
+ideas for themes
+
+const --> anchor
+
+match can be optionally assigned to a var?
+
+
+
+int z = 3;
+
+eg = {
+ int x = 3;
+ int y = 4;
+ eg2 = {
+  z = eg->x + eg->y;
+ }
+}

@@ -1,5 +1,6 @@
 // A complete program consists of zero or more complex objects followed by EOF
-Program ::= ComplexObjectList $  
+
+Program ::= ComplexObjectList
 
 // A list of complex objects, or empty
 ComplexObjectList ::= ComplexObject ComplexObjectList 
@@ -13,7 +14,7 @@ ComplexObject ::= Function
 
 // A function may have zero or more decorators, a name, parameter list,
 // optional return type, and a block of statements
-Function ::= {Decorator} fn Id ( ParamList ) [ "->" Type ] Block  
+Function ::= {Decorator} <fn> Id ( ParamList ) [ "->" Type ] Block  
 
 // A decorator begins with '@' followed by an identifier
 Decorator ::= @Id  
@@ -59,7 +60,7 @@ WhileStatement ::= while BooleanExpr Block
 IfStatement ::= if BooleanExpr Block  
 
 // An enum defines a set of named values
-Enum ::= enum Id { EnumVariants }  
+Enum ::= "enum" Id { EnumVariants }  
 
 // Enum variants can be a comma-separated list of identifiers or empty
 EnumVariants ::= Id , EnumVariants 
@@ -91,7 +92,9 @@ IntExpr ::= digit intop Expr
          | digit  
 
 // A string expression is a quoted list of characters
-StringExpr ::= " CharList "  
+StringExpr ::= " CharList " 
+
+CharExpr ::= ' char '
 
 // A boolean expression is a binary comparison or literal
 BooleanExpr ::= ( Expr boolop Expr ) 
@@ -117,19 +120,29 @@ CharList ::= char CharList
 Type ::= int | string | boolean | Id  
 
 // Digits 0 through 9
-digit ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9  
+<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9  
 
-// Lowercase letters a through z
-char ::= a | b | c ... z  
+// all keyboard characters (ANSI-US-EXTENDED)
+<char> ::= a | b | c | ... | z
+	 | A | B | C | ... | Z
+	 | 0 | ... | 9
+	 | - | _ | : | ! | @ | ... | )
 
 // The space character
 space ::= " "  
 
 // Boolean operators for equality/inequality
-boolop ::= == | !=  
+boolop ::= "==" | "!="  
 
 // Boolean literals
-boolval ::= true | false  
+boolval ::= "true" | "false" ;
 
-// Integer operator (only '+' for now)
-intop ::= +  
+// Generalized op
+genop = "+" | "/" | "*" |
+	"%" | "!" | "//" |
+	"-" | "&" | "<<" |
+	">>" | "|" | "&&" |
+	"||" | "^" ;
+
+// Assign
+assign = "=" | ":=" ;
