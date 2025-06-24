@@ -1,0 +1,89 @@
+[
+    {
+        "test_name": "Boolean Literals",
+        "description": "Test boolean literal values",
+        "code": "true false",
+        "result": [
+            {"type": "T_BOOL_LITERAL", "content": "true"},
+            {"type": "T_BOOL_LITERAL", "content": "false"}
+        ]
+    },
+    {
+        "test_name": "Integer Literals",
+        "description": "Test integer literal values",
+        "code": "123 456 789 0",
+        "result": [
+            {"type": "T_INT_LITERAL", "content": "123"},
+            {"type": "T_INT_LITERAL", "content": "456"},
+            {"type": "T_INT_LITERAL", "content": "789"},
+            {"type": "T_INT_LITERAL", "content": "0"}
+        ]
+    },
+    {
+        "test_name": "Identifiers",
+        "description": "Test valid identifier names",
+        "code": "foo bar baz _test test123",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "foo"},
+            {"type": "T_IDENTIFIER", "content": "bar"},
+            {"type": "T_IDENTIFIER", "content": "baz"},
+            {"type": "T_IDENTIFIER", "content": "_test"},
+            {"type": "T_IDENTIFIER", "content": "test123"}
+        ]
+    },
+    {
+        "test_name": "Mixed Identifiers",
+        "description": "Test identifiers with numbers and underscores",
+        "code": "a1 b2 c3 _x _y _z x_ y_ z_",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a1"},
+            {"type": "T_IDENTIFIER", "content": "b2"},
+            {"type": "T_IDENTIFIER", "content": "c3"},
+            {"type": "T_IDENTIFIER", "content": "_x"},
+            {"type": "T_IDENTIFIER", "content": "_y"},
+            {"type": "T_IDENTIFIER", "content": "_z"},
+            {"type": "T_IDENTIFIER", "content": "x_"},
+            {"type": "T_IDENTIFIER", "content": "y_"},
+            {"type": "T_IDENTIFIER", "content": "z_"}
+        ]
+    },
+    {
+        "test_name": "Edge Case Integers",
+        "description": "Test edge cases for integer literals",
+        "code": "0 01 001 00123 0000",
+        "result": [
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "123"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_INT_LITERAL", "content": "0"}
+        ]
+    },
+    {
+        "test_name": "Reserved Word Like Identifiers",
+        "description": "Test identifiers that contain reserved words",
+        "code": "ifthen whileloop matchcase truefalse",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "ifthen"},
+            {"type": "T_IDENTIFIER", "content": "whileloop"},
+            {"type": "T_IDENTIFIER", "content": "matchcase"},
+            {"type": "T_IDENTIFIER", "content": "truefalse"}
+        ]
+    },
+    {
+        "test_name": "Long Identifiers",
+        "description": "Test very long identifier names",
+        "code": "thisIsAVeryLongIdentifierNameThatShouldStillBeValid_____12345",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "thisIsAVeryLongIdentifierNameThatShouldStillBeValid_____12345"}
+        ]
+    }
+] 

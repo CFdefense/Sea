@@ -1,0 +1,61 @@
+[
+    {
+        "test_name": "Basic Delimiters",
+        "description": "Test basic delimiter characters",
+        "code": "{ } ( ) [ ] , ; .",
+        "result": [
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_CLOSING_BRACKET", "content": "]"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_DOT", "content": "."}
+        ]
+    },
+    {
+        "test_name": "Special Characters",
+        "description": "Test special characters",
+        "code": "@ # $ & ~ ` ?",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_HASH", "content": "#"},
+            {"type": "T_DOLLAR", "content": "$"},
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_TILDE", "content": "~"},
+            {"type": "T_BACKTICK", "content": "`"},
+            {"type": "T_QUESTION", "content": "?"}
+        ]
+    },
+    {
+        "test_name": "Whitespace Handling",
+        "description": "Test various whitespace characters",
+        "code": "a b\tc\nd\r\ne",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_IDENTIFIER", "content": "d"},
+            {"type": "T_IDENTIFIER", "content": "e"}
+        ]
+    },
+    {
+        "test_name": "Complex Delimiters",
+        "description": "Test complex delimiter combinations",
+        "code": "func(x, y) { return; }",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "func"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    }
+] 
