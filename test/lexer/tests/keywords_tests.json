@@ -1,0 +1,152 @@
+[
+    {
+        "test_name": "Control Flow Keywords",
+        "description": "Test control flow keywords",
+        "code": "if while match",
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_MATCH", "content": "match"}
+        ]
+    },
+    {
+        "test_name": "Type Keywords",
+        "description": "Test built-in type keywords",
+        "code": "int bool void",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_VOID_TYPE", "content": "void"}
+        ]
+    },
+    {
+        "test_name": "Function Declarations",
+        "description": "Test function declarations with and without return types",
+        "code": "int main() int { } void process() { }",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "main"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_VOID_TYPE", "content": "void"},
+            {"type": "T_IDENTIFIER", "content": "process"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Function Parameters",
+        "description": "Test function with parameters and return type",
+        "code": "bool validate(int count, bool flag) bool { }",
+        "result": [
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "validate"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "count"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "flag"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Match Statement",
+        "description": "Test match statement syntax",
+        "code": "match (x) => {}",
+        "result": [
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Keyword Case Sensitivity",
+        "description": "Test keyword case sensitivity",
+        "code": "IF if WHILE while MATCH match ENUM enum",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "IF"},
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_IDENTIFIER", "content": "WHILE"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_IDENTIFIER", "content": "MATCH"},
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_IDENTIFIER", "content": "ENUM"},
+            {"type": "T_ENUM", "content": "enum"}
+        ]
+    },
+    {
+        "test_name": "Keywords as Part of Identifiers",
+        "description": "Test keywords appearing within identifiers",
+        "code": "if_statement while_loop match_case enum_type",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "if_statement"},
+            {"type": "T_IDENTIFIER", "content": "while_loop"},
+            {"type": "T_IDENTIFIER", "content": "match_case"},
+            {"type": "T_IDENTIFIER", "content": "enum_type"}
+        ]
+    },
+    {
+        "test_name": "Multiple Decorators",
+        "description": "Test multiple decorators on function",
+        "code": "@test1 @test2 @test3 function name()",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "test1"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "test2"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "test3"},
+            {"type": "T_FUNCTION", "content": "function"},
+            {"type": "T_IDENTIFIER", "content": "name"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Enum Declarations",
+        "description": "Test enum declarations and variants",
+        "code": "enum Color { RED, GREEN, BLUE }",
+        "result": [
+            {"type": "T_ENUM", "content": "enum"},
+            {"type": "T_IDENTIFIER", "content": "Color"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "RED"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "GREEN"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "BLUE"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Function Type Declaration",
+        "description": "Test function with type declarations",
+        "code": "int main(bool flag, int count) { }",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "main"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "flag"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "count"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    }
+] 

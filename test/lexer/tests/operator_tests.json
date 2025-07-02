@@ -1,0 +1,96 @@
+[
+    {
+        "test_name": "Mathematical Operators",
+        "description": "Test basic mathematical operators",
+        "code": "+ - * / % // << >>",
+        "result": [
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_INT_DIVIDE", "content": "//"},
+            {"type": "T_LEFT_SHIFT", "content": "<<"},
+            {"type": "T_RIGHT_SHIFT", "content": ">>"}
+        ]
+    },
+    {
+        "test_name": "Boolean Operators",
+        "description": "Test boolean comparison operators",
+        "code": "== != < > <= >= && || ! ^",
+        "result": [
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_NOT_EQUALS", "content": "!="},
+            {"type": "T_LESS_THAN", "content": "<"},
+            {"type": "T_GREATER_THAN", "content": ">"},
+            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_GREATER_EQUAL", "content": ">="},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_XOR", "content": "^"}
+        ]
+    },
+    {
+        "test_name": "Assignment Operators",
+        "description": "Test assignment operators",
+        "code": "= :=",
+        "result": [
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_DECLARE_ASSIGN", "content": ":="}
+        ]
+    },
+    {
+        "test_name": "Operator Chaining",
+        "description": "Test chained operators without spaces",
+        "code": "a+b-c*d/e%f",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "d"},
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_IDENTIFIER", "content": "e"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_IDENTIFIER", "content": "f"}
+        ]
+    },
+    {
+        "test_name": "Ambiguous Operators",
+        "description": "Test potentially ambiguous operator combinations",
+        "code": "<<<==>>===!====",
+        "result": [
+            {"type": "T_LEFT_SHIFT", "content": "<<"},
+            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_RIGHT_SHIFT", "content": ">>"},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_NOT_EQUALS", "content": "!="},
+            {"type": "T_EQUALS", "content": "=="}
+        ]
+    },
+    {
+        "test_name": "Mixed Operators",
+        "description": "Test mixed operator types",
+        "code": "a && b || !c == d != e >= f <= g",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_IDENTIFIER", "content": "d"},
+            {"type": "T_NOT_EQUALS", "content": "!="},
+            {"type": "T_IDENTIFIER", "content": "e"},
+            {"type": "T_GREATER_EQUAL", "content": ">="},
+            {"type": "T_IDENTIFIER", "content": "f"},
+            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_IDENTIFIER", "content": "g"}
+        ]
+    }
+] 

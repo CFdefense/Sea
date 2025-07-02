@@ -1,0 +1,71 @@
+[
+    {
+        "test_name": "Empty Input",
+        "description": "Test empty input handling",
+        "code": "",
+        "result": []
+    },
+    {
+        "test_name": "Only Whitespace",
+        "description": "Test input with only different types of whitespace",
+        "code": "    \t\n\r\n  \t  \n",
+        "result": []
+    },
+    {
+        "test_name": "Invalid Characters",
+        "description": "Test handling of invalid/unexpected characters",
+        "code": "valid_id № ¢ € valid_id2",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "valid_id"},
+            {"type": "T_ERROR", "content": "№"},
+            {"type": "T_ERROR", "content": "¢"},
+            {"type": "T_ERROR", "content": "€"},
+            {"type": "T_IDENTIFIER", "content": "valid_id2"}
+        ]
+    },
+    {
+        "test_name": "Operator Combinations",
+        "description": "Test ambiguous operator combinations",
+        "code": "=====>>=<!===",
+        "result": [
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_GREATER_EQUAL", "content": ">="},
+            {"type": "T_GREATER_THAN", "content": ">"},
+            {"type": "T_NOT_EQUALS", "content": "!="},
+            {"type": "T_EQUALS", "content": "=="}
+        ]
+    },
+    {
+        "test_name": "Maximum Integer",
+        "description": "Test handling of very large numbers",
+        "code": "9999999999999999999999999999",
+        "result": [
+            {"type": "T_ERROR", "content": "9999999999999999999999999999"}
+        ]
+    },
+    {
+        "test_name": "Invalid Identifiers",
+        "description": "Test invalid identifier patterns",
+        "code": "1abc 2def 9xyz",
+        "result": [
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_IDENTIFIER", "content": "abc"},
+            {"type": "T_INT_LITERAL", "content": "2"},
+            {"type": "T_IDENTIFIER", "content": "def"},
+            {"type": "T_INT_LITERAL", "content": "9"},
+            {"type": "T_IDENTIFIER", "content": "xyz"}
+        ]
+    },
+    {
+        "test_name": "Mixed Whitespace",
+        "description": "Test mixed whitespace between tokens",
+        "code": "id1\t\t\tid2  \n  id3\r\nid4",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "id1"},
+            {"type": "T_IDENTIFIER", "content": "id2"},
+            {"type": "T_IDENTIFIER", "content": "id3"},
+            {"type": "T_IDENTIFIER", "content": "id4"}
+        ]
+    }
+] 

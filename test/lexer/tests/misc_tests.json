@@ -1,0 +1,323 @@
+[
+    {
+        "test_name": "Empty and Whitespace",
+        "description": "Test empty input and various whitespace combinations",
+        "code": "\n\r\n\t    \t\n\r",
+        "result": []
+    },
+    {
+        "test_name": "Unicode Characters",
+        "description": "Test handling of Unicode characters in identifiers",
+        "code": "valid_id1 π σ μ valid_id2",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "valid_id1"},
+            {"type": "T_ERROR", "content": "π"},
+            {"type": "T_ERROR", "content": "σ"},
+            {"type": "T_ERROR", "content": "μ"},
+            {"type": "T_IDENTIFIER", "content": "valid_id2"}
+        ]
+    },
+    {
+        "test_name": "Maximum Token Length",
+        "description": "Test extremely long tokens",
+        "code": "a_very_long_identifier_that_goes_on_and_on_and_on_and_might_be_too_long_for_some_implementations_but_should_still_work_somehow_1234567890",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a_very_long_identifier_that_goes_on_and_on_and_on_and_might_be_too_long_for_some_implementations_but_should_still_work_somehow_1234567890"}
+        ]
+    },
+    {
+        "test_name": "Invalid Token Combinations",
+        "description": "Test invalid or unexpected token combinations",
+        "code": "@@ ## $$ %% && || ^^ !!",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_HASH", "content": "#"},
+            {"type": "T_HASH", "content": "#"},
+            {"type": "T_DOLLAR", "content": "$"},
+            {"type": "T_DOLLAR", "content": "$"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_XOR", "content": "^"},
+            {"type": "T_XOR", "content": "^"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_NOT", "content": "!"}
+        ]
+    },
+    {
+        "test_name": "Mixed Complex Cases",
+        "description": "Test complex combinations of various token types",
+        "code": "if(x&&y||!z){while(true){@decorator func()}}",
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_IDENTIFIER", "content": "z"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_BOOL_LITERAL", "content": "true"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "decorator"},
+            {"type": "T_IDENTIFIER", "content": "func"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Boundary Characters",
+        "description": "Test boundary characters and their combinations",
+        "code": "\u0000\u001F\u007F\u0080\u00FF",
+        "result": [
+            {"type": "T_ERROR", "content": "\u0000"},
+            {"type": "T_ERROR", "content": "\u001F"},
+            {"type": "T_ERROR", "content": "\u007F"},
+            {"type": "T_ERROR", "content": "\u0080"},
+            {"type": "T_ERROR", "content": "\u00FF"}
+        ]
+    },
+    {
+        "test_name": "Comment-Like Operators",
+        "description": "Test operators that might be confused with comments",
+        "code": "/ // /// //// * ** *** ****",
+        "result": [
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_INT_DIVIDE", "content": "//"},
+            {"type": "T_INT_DIVIDE", "content": "//"},
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_INT_DIVIDE", "content": "//"},
+            {"type": "T_INT_DIVIDE", "content": "//"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_MULTIPLY", "content": "*"}
+        ]
+    },
+    {
+        "test_name": "Deeply Nested Structures",
+        "description": "Test deeply nested blocks and expressions",
+        "code": "if(x){while(y){match(z){case1=>{if(w){func()}}}}}", 
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "z"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "case1"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "w"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "func"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Complex Type Declarations",
+        "description": "Test type declarations and combinations",
+        "code": "struct MyStruct { field1 int; field2 bool; }",
+        "result": [
+            {"type": "T_STRUCT", "content": "struct"},
+            {"type": "T_IDENTIFIER", "content": "MyStruct"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "field1"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_IDENTIFIER", "content": "field2"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Complex Parameter Lists",
+        "description": "Test various parameter list formats and edge cases",
+        "code": "func(a int, b bool,,,c int)",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "func"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_ERROR", "content": ",,"},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Match Arms Edge Cases",
+        "description": "Test various match arm patterns",
+        "code": "match(x){_=>{}case=>{}1=>{}true=>{}}",
+        "result": [
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_UNDERSCORE", "content": "_"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_IDENTIFIER", "content": "case"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_BOOL_LITERAL", "content": "true"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Error Recovery",
+        "description": "Test lexer error recovery with invalid sequences",
+        "code": "if(x#@$){}while(&*^){}",
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_HASH", "content": "#"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_DOLLAR", "content": "$"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_XOR", "content": "^"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Line Continuations",
+        "description": "Test handling of line continuations and escaped characters",
+        "code": "\"test\\\nstring\" 'c\\n' '\\t'",
+        "result": [
+            {"type": "T_STRING_LITERAL", "content": "\"test\\\nstring\""},
+            {"type": "T_CHAR_LITERAL", "content": "'c\\n'"},
+            {"type": "T_CHAR_LITERAL", "content": "'\\t'"}
+        ]
+    },
+    {
+        "test_name": "Empty Parameters and Whitespace",
+        "description": "Test empty parameter lists and mixed whitespace",
+        "code": "void\tmain(    )\n{\t  \t}\n",
+        "result": [
+            {"type": "T_VOID_TYPE", "content": "void"},
+            {"type": "T_IDENTIFIER", "content": "main"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Multiple Statements",
+        "description": "Test multiple statements and semicolons",
+        "code": "int x;;; bool y; z = 1;;;;",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_IDENTIFIER", "content": "z"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_SEMICOLON", "content": ";"}
+        ]
+    },
+    {
+        "test_name": "Decorator Spacing",
+        "description": "Test decorators with various spacing",
+        "code": "@dec1\n@\tdec2\n@\n\tdec3",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "dec1"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "dec2"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "dec3"}
+        ]
+    },
+    {
+        "test_name": "Function Return Types",
+        "description": "Test function declarations with various return types",
+        "code": "int calc() int {} bool check() bool {} void log() {}",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "calc"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "check"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_VOID_TYPE", "content": "void"},
+            {"type": "T_IDENTIFIER", "content": "log"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    }
+] 
