@@ -19,29 +19,81 @@ decorator = "@" id | ε ;
 // list of parameters of a function
 param_list = param "," param_list | param | ε ;
 
-// parameter of a function
-param = type id ;
+// parameter of a function with optional mutability
+param = type mut_spec id |
+        type mut_spec id "[" expr? "]" |  // array parameter
+        type mut_spec "*" id |            // pointer parameter
+        type mut_spec "(" "*" id ")" "(" param_list ")" ; // function pointer
+
+// mutability specifier
+mut_spec = "mut" | ε ;
 
 // code blocks and statements
-block = "{" statement_list "}" ;
+block = "{" statement_list expr? "}" ;
 
 statement_list = statement statement_list | ε ;
 
-statement = var_decl |
-	    assignment_statement |
-	    if_statement |
-	    while_statement |
-	    match_statement |
-	    block |
-	    expr ";" ;
+statement = labeled_statement |
+           var_decl |
+           assignment_statement |
+           if_statement |
+           while_statement |
+           do_while_statement |
+           for_statement |
+           match_statement |
+           switch_statement |
+           asm_statement |
+           jump_statement |
+           block |
+           expr ";" ;
 
-var_decl = type id ";" ;
+// labeled statements for goto
+labeled_statement = id ":" statement |
+                   "case" expr ":" statement |
+                   "default" ":" statement ;
 
-assignment_statement = id "=" expr ";" ;
+// variable declaration with optional mutability
+var_decl = type mut_spec declarator ("," declarator)* ";" ;
 
-if_statement = "if" boolean_expr block ;
+// declarator for variables, including arrays and pointers
+declarator = id |
+            "*" declarator |
+            declarator "[" expr? "]" |
+            "(" "*" id ")" "(" param_list ")" ; // Function pointer
 
-while_statement = "while" boolean_expr block ;
+assignment_statement = expr assign expr ";" ;
+
+// if statement with optional else and else-if chains
+if_statement = "if" "(" expr ")" block else_chain? ;
+
+else_chain = "else" block |
+            "else" if_statement ;
+
+// for loop
+for_statement = "for" "(" for_init? ";" expr? ";" for_update? ")" block ;
+
+for_init = var_decl | assignment_statement ;
+
+for_update = expr ;
+
+while_statement = "while" "(" expr ")" block ;
+
+do_while_statement = "do" block "while" "(" expr ")" ";" ;
+
+// switch-case statement
+switch_statement = "switch" "(" expr ")" "{" case_list "}" ;
+
+case_list = case case_list | default_case | ε ;
+
+case = "case" expr ":" statement_list ;
+
+default_case = "default" ":" statement_list ;
+
+// jump statements
+jump_statement = "goto" id ";" |
+                "continue" ";" |
+                "break" ";" |
+                "return" expr? ";" ;
 
 match_statement = "match" condition match_block ;
 
@@ -53,15 +105,79 @@ armlist = armlist | arm ;
 
 arm = expr | condition "=>" block ;
 
-// somewhere here we need an expr name/expansion
-expr = int_expr ;
+// inline assembly block
+asm_statement = "asm" "(" string_literal ")" ";" |
+                "asm" "{" asm_block "}" ;
+
+asm_block = asm_line* ;
+asm_line = string_literal ";" ;
+
+// expressions (incl. block expressions)
+expr = conditional_expr |
+       assignment_expr |
+       int_expr |
+       block_expr |
+       pointer_expr |
+       reference_expr |
+       member_expr |
+       array_expr |
+       cast_expr |
+       sizeof_expr |
+       unary_expr |
+       comma_expr ;
+
+// conditional expression (ternary)
+conditional_expr = expr "?" expr ":" expr ;
+
+// assignment expression
+assignment_expr = unary_expr assign expr ;
+
+// block expression
+block_expr = block ;
+
+// pointer and reference expressions
+pointer_expr = "*" expr |
+              "&" expr |
+              "&" "mut" expr ;
+
+reference_expr = id |
+                "*" id |
+                "&" id ;
+
+// member access
+member_expr = expr "." id |
+             expr "->" id ;
+
+// array access
+array_expr = expr "[" expr "]" ;
+
+// type casting
+cast_expr = "(" type ")" expr ;
+
+// sizeof operator
+sizeof_expr = "sizeof" "(" (type | expr) ")" ;
+
+// unary expressions
+unary_expr = "++" expr |
+            "--" expr |
+            expr "++" |
+            expr "--" |
+            "+" expr |
+            "-" expr |
+            "~" expr |
+            "!" expr ;
+
+// comma operator
+comma_expr = expr "," expr ;
 
 // mathematical operators
 mathop = "+" | "-" | "*" | "/" | "%" |
          "!" | "//" | "<<" | ">>" ;
 
 // assignment operators
-assign = "=" | ":=" ;
+assign = "=" | "+=" | "-=" | "*=" | "/=" |
+         "%=" | "<<=" | ">>=" | "&=" | "^=" |
+         "|=" ;
 
 // boolean literals
 boolval = "true" | "false" ;
@@ -102,3 +218,6 @@ special = " " | "!" | "#" | "$" | "%" |
           "?" | "@" | "[" | "]" | "^" |
           "_" | "`" | "{" | "|" | "}" |
           "~" ;
+
+// string literals for asm blocks
+string_literal = "\"" (alpha | digit | special)* "\"" ;
