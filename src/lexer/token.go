@@ -1,14 +1,5 @@
 package lexer
 
-// Based on my research I believe the best way to go about the lexer is as follows
-//
-// 1. Define allowed tokens using regex
-// 2. Convert Regex to NFA (Thompson's Algorithm)
-// 3. Compute ε-Closure of States
-// 4. Convert NFA to DFA
-//
-//
-
 // 'Enum' for token types
 // using iota assigns successive integer values
 // ie: first defined token is 0, second is 1 etc
@@ -16,14 +7,14 @@ type TokenType int
 
 // token category enum definitions
 const (
-	T_IDENTIFIER TokenType = iota
-	T_OPERATOR
-	T_CONSTANT
-	T_KEYWORD
-	T_LITERAL
-	T_PUNCTUATOR
-	T_SPECIAL
-	T_UNKNOWN
+	T_IDENTIFIER TokenType = iota // Names for functions, variables, types (e.g., main, x, myVar)
+	T_OPERATOR                    // Mathematical and logical operators (+, -, *, /, %, ==, !=, &&, ||)
+	T_CONSTANT                    // Named constants and enum values (e.g., RED, GREEN, BLUE in enum)
+	T_KEYWORD                     // Language keywords (if, while, match, enum, struct, void, int, bool)
+	T_LITERAL                     // Direct values (numbers, booleans: 42, true, false)
+	T_PUNCTUATOR                  // Structural characters ({, }, (, ), [, ], ;, ,)
+	T_SPECIAL                     // Special tokens (@, #, $) and decorators
+	T_UNKNOWN                     // Invalid or unrecognized tokens
 )
 
 // Individual token object

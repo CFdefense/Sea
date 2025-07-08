@@ -221,3 +221,21 @@ special = " " | "!" | "#" | "$" | "%" |
 
 // string literals for asm blocks
 string_literal = "\"" (alpha | digit | special)* "\"" ;
+
+// Comments
+comment = single_line_comment | multi_line_comment ;
+single_line_comment = "//" (any_char_except_newline)* newline ;
+multi_line_comment = "/*" (any_char_except_comment_end)* "*/" ;
+
+// String literals with escape sequences
+string_literal = "\"" string_char* "\"" ;
+string_char = escape_sequence | any_char_except_quote_or_newline ;
+escape_sequence = "\\" ("n" | "t" | "r" | "\\" | "\"" | "'" ) ;
+
+// ASM block specifics
+asm_instruction = opcode operand* ;
+opcode = id ;
+operand = register | immediate | memory_reference ;
+register = "%" id ;
+immediate = number | id ;
+memory_reference = "[" expr "]" ;
