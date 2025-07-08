@@ -5,35 +5,35 @@ import "regexp"
 // Regex patterns for token matching
 var (
 	// Patterns for each token type
-	IdentifierPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*`)
+	IDENTIFIER_PATTERN = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*`)
 
 	// Operators including all arithmetic, logical, bitwise, and assignment operators
-	OperatorPattern = regexp.MustCompile(`^(\+\+|--|==|!=|<=|>=|&&|\|\||->|<<|>>|//|[-+*/%<>!&|^~=]=|[-+*/%<>!&|^~])`)
+	OPERATOR_PATTERN = regexp.MustCompile(`^(\+\+|--|==|!=|<=|>=|&&|\|\||->|<<|>>|//|[-+*/%<>!&|^~=]=|[-+*/%<>!&|^~])`)
 
 	// Constants (all uppercase)
-	ConstantPattern = regexp.MustCompile(`^[A-Z][A-Z0-9_]*`)
+	CONSTANT_PATTERN = regexp.MustCompile(`^[A-Z][A-Z0-9_]*`)
 
 	// All language keywords
-	KeywordPattern = regexp.MustCompile(`^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|switch|case|default|break|continue|goto|sizeof|asm)\b`)
+	KEYWORD_PATTERN = regexp.MustCompile(`^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|switch|case|default|break|continue|goto|sizeof|asm)\b`)
 
 	// Numeric literals including hex and binary
-	NumberPattern = regexp.MustCompile(`^(0x[0-9a-fA-F]+|0b[01]+|[0-9]+)`)
+	NUMBER_PATTERN = regexp.MustCompile(`^(0x[0-9a-fA-F]+|0b[01]+|[0-9]+)`)
 
 	// Boolean literals
-	BoolPattern = regexp.MustCompile(`^(true|false)\b`)
+	BOOL_PATTERN = regexp.MustCompile(`^(true|false)\b`)
 
 	// Punctuators including all delimiters and structural tokens
-	PunctuatorPattern = regexp.MustCompile(`^[{}\[\]();,.:?]`)
+	PUNCTUATOR_PATTERN = regexp.MustCompile(`^[{}\[\]();,.:?]`)
 
 	// Special tokens including decorators and reference operators
-	SpecialPattern = regexp.MustCompile(`^(@|&mut\b|&|#|\$)`)
+	SPECIAL_PATTERN = regexp.MustCompile(`^(@|&mut\b|&|#|\$)`)
 
 	// String literals with escape sequences
-	StringPattern = regexp.MustCompile(`^"([^"\\]|\\.)*"`)
+	STRING_PATTERN = regexp.MustCompile(`^"([^"\\]|\\.)*"`)
 
 	// Comments
-	SingleLineCommentPattern = regexp.MustCompile(`^//[^\n]*`)
-	MultiLineCommentPattern  = regexp.MustCompile(`^/\*[\s\S]*?\*/`)
+	SINGLE_LINE_COMMENT_PATTERN = regexp.MustCompile(`^//[^\n]*`)
+	MULTI_LINE_COMMENT_PATTERN  = regexp.MustCompile(`^/\*[\s\S]*?\*/`)
 )
 
 // 'Enum' for token types
