@@ -31,6 +31,12 @@ var (
 	// String literals with escape sequences
 	STRING_PATTERN = regexp.MustCompile(`^"([^"\\]|\\.)*"`)
 
+	// Character literals
+	CHAR_PATTERN = regexp.MustCompile(`^'([^'\\]|\\.)'`)
+
+	// Escape sequences
+	ESCAPE_SEQUENCE_PATTERN = regexp.MustCompile(`^\\[ntr\\"']`)
+
 	// Comments
 	SINGLE_LINE_COMMENT_PATTERN = regexp.MustCompile(`^//[^\n]*`)
 	MULTI_LINE_COMMENT_PATTERN  = regexp.MustCompile(`^/\*[\s\S]*?\*/`)
@@ -50,6 +56,9 @@ var (
 
 	// Memory reference pattern (e.g., (%rax), 8(%rbp), -16(%rbp))
 	ASM_MEMORY_REF = regexp.MustCompile(`^(-?\d+)?\s*\(\s*%[a-zA-Z0-9]+\s*\)`)
+
+	// Assembly label pattern (e.g., loop_start:, main:)
+	ASM_LABEL = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*:`)
 
 	// Operand separator
 	ASM_SEPARATOR = regexp.MustCompile(`^,\s*`)
@@ -73,43 +82,43 @@ const (
 	T_UNKNOWN                     // Invalid or unrecognized tokens
 
 	// Comments and documentation
-	T_SINGLE_LINE_COMMENT         // Single line comments (//)
-	T_MULTI_LINE_COMMENT          // Multi-line comments (/* */)
+	T_SINGLE_LINE_COMMENT // Single line comments (//)
+	T_MULTI_LINE_COMMENT  // Multi-line comments (/* */)
 
 	// String-related
-	T_STRING_LITERAL      	      // String literals with escape sequences
-	T_CHAR_LITERAL                // Character literals ('a', '\n')
-	T_ESCAPE_SEQUENCE             // Escape sequences in strings (\n, \t, \", etc.)
-	T_RAW_STRING_LITERAL          // Raw string literals (r"...") - for regex
-	T_BYTE_STRING_LITERAL         // Byte string literals (b"...") - for regex
+	T_STRING_LITERAL      // String literals with escape sequences
+	T_CHAR_LITERAL        // Character literals ('a', '\n')
+	T_ESCAPE_SEQUENCE     // Escape sequences in strings (\n, \t, \", etc.)
+	T_RAW_STRING_LITERAL  // Raw string literals (r"...") - for regex
+	T_BYTE_STRING_LITERAL // Byte string literals (b"...") - for regex
 
 	// Type-related
-	T_TYPE_QUALIFIER              // Type qualifiers (mut)
-	T_TYPE_IDENTIFIER             // Built-in type names (int, bool, void)
-	T_ARRAY_TYPE                  // Array type declarations
-	T_POINTER_TYPE                // Pointer type declarations
-	T_FUNCTION_TYPE               // Function type declarations
+	T_TYPE_QUALIFIER  // Type qualifiers (mut)
+	T_TYPE_IDENTIFIER // Built-in type names (int, bool, void)
+	T_ARRAY_TYPE      // Array type declarations
+	T_POINTER_TYPE    // Pointer type declarations
+	T_FUNCTION_TYPE   // Function type declarations
 
 	// Expression-related
-	T_TERNARY_OPERATOR            // Ternary operator (? :)
-	T_UNARY_OPERATOR              // Unary operators (++, --, !, ~)
-	T_BINARY_OPERATOR             // Binary operators (+, -, *, /, etc.)
-	T_ASSIGNMENT_OPERATOR         // Assignment operators (=, +=, -=, etc.)
-	T_MEMBER_OPERATOR             // Member access operators (., ->)
+	T_TERNARY_OPERATOR    // Ternary operator (? :)
+	T_UNARY_OPERATOR      // Unary operators (++, --, !, ~)
+	T_BINARY_OPERATOR     // Binary operators (+, -, *, /, etc.)
+	T_ASSIGNMENT_OPERATOR // Assignment operators (=, +=, -=, etc.)
+	T_MEMBER_OPERATOR     // Member access operators (., ->)
 
 	// Control flow
-	T_LABEL                       // Labels for goto statements
-	T_CASE_LABEL                  // Case labels in switch statements
-	T_DEFAULT_LABEL               // Default label in switch statements
+	T_LABEL         // Labels for goto statements
+	T_CASE_LABEL    // Case labels in switch statements
+	T_DEFAULT_LABEL // Default label in switch statements
 
 	// Assembly-specific tokens
-	T_ASM_BLOCK                   // asm { ... } block markers
-	T_ASM_INSTRUCTION             // Assembly mnemonics (mov, push, pop, etc.)
-	T_ASM_REGISTER                // Register references (%rax, %rbp, etc.)
-	T_ASM_IMMEDIATE               // Immediate values ($42, $0xFF)
-	T_ASM_MEMORY_REF              // Memory references ((%rax), 8(%rbp))
-	T_ASM_SEPARATOR               // Operand separators (comma)
-	T_ASM_LABEL                   // Labels for jumps and functions
+	T_ASM_BLOCK       // asm { ... } block markers
+	T_ASM_INSTRUCTION // Assembly mnemonics (mov, push, pop, etc.)
+	T_ASM_REGISTER    // Register references (%rax, %rbp, etc.)
+	T_ASM_IMMEDIATE   // Immediate values ($42, $0xFF)
+	T_ASM_MEMORY_REF  // Memory references ((%rax), 8(%rbp))
+	T_ASM_SEPARATOR   // Operand separators (comma)
+	T_ASM_LABEL       // Labels for jumps and functions
 )
 
 // Individual token object
