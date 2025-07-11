@@ -144,3 +144,81 @@ func (t *Token) GetRow() int {
 func (t *Token) GetCol() int {
 	return t.col
 }
+
+// String converts TokenType to its string representation
+func (tt TokenType) String() string {
+	switch tt {
+	case T_IDENTIFIER:
+		return "T_IDENTIFIER"
+	case T_OPERATOR:
+		return "T_OPERATOR"
+	case T_CONSTANT:
+		return "T_CONSTANT"
+	case T_KEYWORD:
+		return "T_KEYWORD"
+	case T_LITERAL:
+		return "T_LITERAL"
+	case T_PUNCTUATOR:
+		return "T_PUNCTUATOR"
+	case T_SPECIAL:
+		return "T_SPECIAL"
+	case T_UNKNOWN:
+		return "T_UNKNOWN"
+	case T_SINGLE_LINE_COMMENT:
+		return "T_SINGLE_LINE_COMMENT"
+	case T_MULTI_LINE_COMMENT:
+		return "T_MULTI_LINE_COMMENT"
+	case T_STRING_LITERAL:
+		return "T_STRING_LITERAL"
+	case T_CHAR_LITERAL:
+		return "T_CHAR_LITERAL"
+	case T_ESCAPE_SEQUENCE:
+		return "T_ESCAPE_SEQUENCE"
+	case T_RAW_STRING_LITERAL:
+		return "T_RAW_STRING_LITERAL"
+	case T_BYTE_STRING_LITERAL:
+		return "T_BYTE_STRING_LITERAL"
+	case T_TYPE_QUALIFIER:
+		return "T_TYPE_QUALIFIER"
+	case T_TYPE_IDENTIFIER:
+		return "T_TYPE_IDENTIFIER"
+	case T_ARRAY_TYPE:
+		return "T_ARRAY_TYPE"
+	case T_POINTER_TYPE:
+		return "T_POINTER_TYPE"
+	case T_FUNCTION_TYPE:
+		return "T_FUNCTION_TYPE"
+	case T_TERNARY_OPERATOR:
+		return "T_TERNARY_OPERATOR"
+	case T_UNARY_OPERATOR:
+		return "T_UNARY_OPERATOR"
+	case T_BINARY_OPERATOR:
+		return "T_BINARY_OPERATOR"
+	case T_ASSIGNMENT_OPERATOR:
+		return "T_ASSIGNMENT_OPERATOR"
+	case T_MEMBER_OPERATOR:
+		return "T_MEMBER_OPERATOR"
+	case T_LABEL:
+		return "T_LABEL"
+	case T_CASE_LABEL:
+		return "T_CASE_LABEL"
+	case T_DEFAULT_LABEL:
+		return "T_DEFAULT_LABEL"
+	case T_ASM_BLOCK:
+		return "T_ASM_BLOCK"
+	case T_ASM_INSTRUCTION:
+		return "T_ASM_INSTRUCTION"
+	case T_ASM_REGISTER:
+		return "T_ASM_REGISTER"
+	case T_ASM_IMMEDIATE:
+		return "T_ASM_IMMEDIATE"
+	case T_ASM_MEMORY_REF:
+		return "T_ASM_MEMORY_REF"
+	case T_ASM_SEPARATOR:
+		return "T_ASM_SEPARATOR"
+	case T_ASM_LABEL:
+		return "T_ASM_LABEL"
+	default:
+		return "T_UNKNOWN"
+	}
+}

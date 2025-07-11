@@ -18,7 +18,7 @@ type Lexer struct {
 	row          int
 	col          int
 	debug        *debugger.Debug
-	tokenNFAs    []*NFA		// store NFA tokens
+	tokenNFAs    []*NFA // store NFA tokens
 }
 
 // lexer object constructor
@@ -29,7 +29,7 @@ func InitializeLexer(debug bool) *Lexer {
 		row:          1,
 		col:          1,
 		debug:        debugger.InitializeDebugger("LEX", debug),
-		tokenNFAs:    []*NFA{},	// initialize empty NFA slice
+		tokenNFAs:    []*NFA{}, // initialize empty NFA slice
 	}
 }
 
@@ -55,7 +55,10 @@ func (l *Lexer) LexicalAnalysis(path string) {
 	// begin lexer scan of target file
 	// might want to change this to target directory
 	// depending on future limits/scope
-	l.Scan(path)
+	// if were testing, we can skip this as content is already set
+	if path != "" {
+		l.Scan(path)
+	}
 
 	// begin lexer analyze
 	// this will turn our scanned content into
@@ -116,11 +119,13 @@ func (l *Lexer) Analyze() {
 	// TODO Analyze and create token stream
 	// Based on my research I believe the best way to go about the lexer is as follows
 	//
-	// 1. Define allowed tokens using regex DONE?
+	// 1. Define allowed tokens using regex
 	// 2. Convert Regex to NFA (Thompson's Algorithm)
 	// 3. Compute ε-Closure of States
 	// 4. Convert NFA to DFA
 	//
+
+	// 1. define regex patterns (DONE)
 
 	// 2. convert regex to NFAs via thompson's algorithm
 	l.buildTokenNFAs()
@@ -193,7 +198,7 @@ func (l *Lexer) thompsonConstruct(regexPattern string, tokenType TokenType) *NFA
 		tokenType:          tokenType,
 		transitions:        make(map[rune][]*NFAState),
 		epsilonTransitions: []*NFAState{},
-		compiledRegex:      compiledRegex,	// store compiled regex
+		compiledRegex:      compiledRegex, // store compiled regex
 	}
 
 	endState := &NFAState{
@@ -233,7 +238,7 @@ func (l *Lexer) buildSimpleNFA(tokenType TokenType, isAccepting bool) *NFA {
 	}
 
 	// transition from start to end on any character
-	start.transitions['\000'] = []*NFAState{end}	// null character
+	start.transitions['\000'] = []*NFAState{end} // null character
 
 	return &NFA{start: start, end: end}
 }
@@ -260,4 +265,9 @@ func (l *Lexer) ResetLexer() {
 // function to get the token stream
 func (l *Lexer) GetTokenStream() []Token {
 	return l.token_stream
+}
+
+// function to set the content of the lexer
+func (l *Lexer) SetContent(content map[string]string) {
+	l.content = content
 }
