@@ -119,11 +119,13 @@ func (l *Lexer) Analyze() {
 	// TODO Analyze and create token stream
 	// Based on my research I believe the best way to go about the lexer is as follows
 	//
-	// 1. Define allowed tokens using regex DONE?
+	// 1. Define allowed tokens using regex
 	// 2. Convert Regex to NFA (Thompson's Algorithm)
 	// 3. Compute ε-Closure of States
 	// 4. Convert NFA to DFA
 	//
+
+	// 1. define regex patterns (DONE)
 
 	// 2. convert regex to NFAs via thompson's algorithm
 	l.buildTokenNFAs()
