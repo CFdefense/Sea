@@ -12,17 +12,23 @@ import (
 
 const LEXER_TEST_DIR = "./test/lexer/tests/"
 
+// TokenResult represents a single token in the expected result
+type TokenResult struct {
+	Type    string `json:"type"`
+	Content string `json:"content"`
+}
+
 type TestCase struct {
-	TestName        string   `json:"test_name"`
-	TestDescription string   `json:"description"`
-	TestContent     string   `json:"code"`
-	ExpectedResult  []string `json:"result"`
+	TestName        string        `json:"test_name"`
+	TestDescription string        `json:"description"`
+	TestContent     string        `json:"code"`
+	ExpectedResult  []TokenResult `json:"result"`
 }
 
 type TestResult struct {
 	TestCase TestCase
 	Result   bool
-	Expected []string
+	Expected []TokenResult
 	Actual   []lexer.Token
 }
 
@@ -54,10 +60,16 @@ func RunLexerTests(debug bool) []TestResult {
 				// reset lexer in between uses
 				l.ResetLexer()
 
+				// set test content
+				l.SetContent(map[string]string{"test_input": test.TestContent})
+
+				// run lexical analysis
+				l.LexicalAnalysis("")
+
 				// get results and compare to expected
 				token_stream_result := l.GetTokenStream()
 
-				result := compareTokenContent(token_stream_result, test.ExpectedResult)
+				result := compareTokens(token_stream_result, test.ExpectedResult)
 
 				// Create a TestResult instance
 				test_result := TestResult{
@@ -76,20 +88,25 @@ func RunLexerTests(debug bool) []TestResult {
 	return test_results
 }
 
-// compareTokenContent compares a slice of tokens with a slice of expected token content strings
-func compareTokenContent(actual []lexer.Token, expected []string) bool {
-	// compare token streamlengths
+// compareTokens compares a slice of tokens with a slice of expected token results
+func compareTokens(actual []lexer.Token, expected []TokenResult) bool {
+	// compare token stream lengths
 	if len(actual) != len(expected) {
 		return false
 	}
 
-	// Compare token content after length check
+	// Compare token content and type
 	allMatch := true
 	for i, token := range actual {
 		actualContent := token.GetTokenContent()
-		expectedContent := expected[i]
-		match := actualContent == expectedContent
-		if !match {
+		actualType := token.GetTokenType().String()
+		expectedContent := expected[i].Content
+		expectedType := expected[i].Type
+
+		contentMatch := actualContent == expectedContent
+		typeMatch := actualType == expectedType
+
+		if !contentMatch || !typeMatch {
 			allMatch = false
 		}
 	}

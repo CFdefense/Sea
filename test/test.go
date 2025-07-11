@@ -18,7 +18,10 @@ func RunTests(debug bool) {
 		} else {
 			fmt.Println(test.TestCase.TestName, "FAILED")
 			fmt.Println("Expected:", test.Expected)
-			fmt.Println("Actual:", test.Actual)
+			fmt.Println("Actual:")
+			for _, token := range test.Actual {
+				fmt.Printf("  {type: %s, content: %s}\n", token.GetTokenType().String(), token.GetTokenContent())
+			}
 		}
 		fmt.Print("--------------------------------\n")
 	}
