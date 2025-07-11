@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"regexp"
-
 	debugger "github.com/CFdefense/compiler/src/debug"
 )
 
@@ -40,7 +38,6 @@ type NFAState struct {
 	tokenType          TokenType
 	transitions        map[rune][]*NFAState
 	epsilonTransitions []*NFAState
-	compiledRegex      *regexp.Regexp
 }
 
 // NFA structure
@@ -178,27 +175,19 @@ func (l *Lexer) buildTokenNFAs() {
 }
 
 // thompson's construction
-// using golang's regex engine for pattern matching, could be done from scratch
-// have our own NFA structure but i think writing a regex parser would be too much too soon
-// TODO: more expansive NFA structure handling
+// TODO: Implement true Thompson construction with regex parsing
+// For now, create placeholder NFAs that will be replaced with proper construction
 func (l *Lexer) thompsonConstruct(regexPattern string, tokenType TokenType) *NFA {
 	l.debug.DebugLog(fmt.Sprintf("lexer: converting regex pattern to NFA: %s", regexPattern), false)
 
-	compiledRegex, err := regexp.Compile(regexPattern)
-	if err != nil {
-		l.debug.DebugLog(fmt.Sprintf("lexer: failed to compile regex pattern: %s, error: %v", regexPattern, err), true)
-		// return simple NFA
-		return l.buildSimpleNFA(tokenType, false)
-	}
-
-	// create a functional NFA
+	// TODO: Parse regex to postfix notation and build proper NFA
+	// For now, create a placeholder NFA structure
 	startState := &NFAState{
 		id:                 l.generateStateID(),
 		isAccepting:        false,
 		tokenType:          tokenType,
 		transitions:        make(map[rune][]*NFAState),
 		epsilonTransitions: []*NFAState{},
-		compiledRegex:      compiledRegex, // store compiled regex
 	}
 
 	endState := &NFAState{
@@ -207,7 +196,6 @@ func (l *Lexer) thompsonConstruct(regexPattern string, tokenType TokenType) *NFA
 		tokenType:          tokenType,
 		transitions:        make(map[rune][]*NFAState),
 		epsilonTransitions: []*NFAState{},
-		compiledRegex:      nil,
 	}
 
 	nfa := &NFA{
@@ -215,11 +203,11 @@ func (l *Lexer) thompsonConstruct(regexPattern string, tokenType TokenType) *NFA
 		end:   endState,
 	}
 
-	l.debug.DebugLog(fmt.Sprintf("lexer: successfully built NFA for pattern: %s", regexPattern), false)
+	l.debug.DebugLog(fmt.Sprintf("lexer: created placeholder NFA for pattern: %s", regexPattern), false)
 	return nfa
 }
 
-// build a NFA for a token that doesn't have a regex pattern
+// build a placeholder NFA for a token that doesn't have a regex pattern
 func (l *Lexer) buildSimpleNFA(tokenType TokenType, isAccepting bool) *NFA {
 	start := &NFAState{
 		id:                 l.generateStateID(),
@@ -237,8 +225,8 @@ func (l *Lexer) buildSimpleNFA(tokenType TokenType, isAccepting bool) *NFA {
 		epsilonTransitions: []*NFAState{},
 	}
 
-	// transition from start to end on any character
-	start.transitions['\000'] = []*NFAState{end} // null character
+	// TODO: Add proper transitions based on token type
+	// For now, no transitions (placeholder)
 
 	return &NFA{start: start, end: end}
 }
