@@ -114,7 +114,7 @@ func (l *Lexer) Analyze() {
 }
 
 // thompson's algorithm impl:
-// 1. convert each token pattern to NFAs
+// 1. convert each token regex pattern to NFAs
 // 2. store NFAs in lexer struct for later use in steps 2, 3 ^^
 func (l *Lexer) buildTokenNFAs() {
 	l.debug.DebugLog("lexer: building NFAs", false)
@@ -158,9 +158,6 @@ func (l *Lexer) buildTokenNFAs() {
 
 	l.debug.DebugLog("lexer: success on NFAs", false)
 }
-
-// thompson's construction
-// TODO: Implement true Thompson construction with regex parsing
 
 // function to reset a lexer
 // mostly used in repeated test executions

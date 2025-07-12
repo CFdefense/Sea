@@ -1,5 +1,7 @@
 package lexer
 
+import "regexp"
+
 // NFA state structure
 type NFAState struct {
 	id                 int
@@ -15,6 +17,12 @@ type NFA struct {
 	end   *NFAState
 }
 
+// An NFA represening a Fragment of a larger NFA
+type Fragment struct {
+	start *NFAState
+	end   *NFAState
+}
+
 var stateIDCounter int = 0
 
 func generateStateID() int {
@@ -25,126 +33,37 @@ func generateStateID() int {
 // thompson's construction
 // TODO: Implement true Thompson construction with regex parsing
 // For now, create placeholder NFAs that will be replaced with proper construction
+// TODO: Parse regex to postfix notation and build proper NFA
+// For now, create a placeholder NFA structure
 func thompsonConstruct(regexPattern string, tokenType TokenType) *NFA {
-	// TODO: Parse regex to postfix notation and build proper NFA
-	// For now, create a placeholder NFA structure
-	startState := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        false,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	endState := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        true,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	nfa := &NFA{
-		start: startState,
-		end:   endState,
-	}
-
-	return nfa
-}
-
-// build a placeholder NFA for a token that doesn't have a regex pattern
-func buildSimpleNFA(tokenType TokenType, isAccepting bool) *NFA {
-	start := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        isAccepting,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	end := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        isAccepting,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	// TODO: Add proper transitions based on token type
-	// For now, no transitions (placeholder)
-
-	return &NFA{start: start, end: end}
-}
-
-// function to replace thompsonConstruct with true Thompson construction
-func parseRegexToPostfix(regexPattern string) string {
-	// This is a placeholder for a proper regex to postfix parser.
-	// In a real implementation, you would use a regex engine to parse the pattern
-	// and convert it to postfix notation.
-	// For now, we'll just return the pattern as a placeholder.
-	return regexPattern
-}
-
-// function to replace thompsonConstruct with true Thompson construction
-func buildNFAFromPostfix(postfix string, tokenType TokenType) *NFA {
-	// This is a placeholder for a proper postfix to NFA builder.
-	// In a real implementation, you would use a regex engine to parse the postfix
-	// and build the NFA state machine.
-	// For now, we'll just return a placeholder NFA.
-	startState := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        false,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	endState := &NFAState{
-		id:                 generateStateID(),
-		isAccepting:        true,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	nfa := &NFA{
-		start: startState,
-		end:   endState,
-	}
-
-	return nfa
-}
-
-func epsilonClosure(states []*NFAState) []*NFAState {
-	// 1. Start with input states
-	closure := make(map[int]*NFAState)
-	stack := make([]*NFAState, len(states))
-	copy(stack, states)
-
-	// Add initial states to closure
-	for _, state := range states {
-		closure[state.id] = state
-	}
-
-	// 2. Add all states reachable via ε-transitions
-	// 3. Repeat until no new states added
-	for len(stack) > 0 {
-		current := stack[len(stack)-1]
-		stack = stack[:len(stack)-1]
-
-		// Add all ε-transitions
-		for _, nextState := range current.epsilonTransitions {
-			if _, exists := closure[nextState.id]; !exists {
-				closure[nextState.id] = nextState
-				stack = append(stack, nextState)
-			}
+	single_literal := regexp.MustCompile(`^(\\.|[^\\.*+?|()[\]{}^$])$`)
+	concatenation :=
+	alternation := 
+	kleen_star :=
+	if single_literal.MatchString(regexPattern) {
+		s1 := &NFAState{
+			id:                 generateStateID(),
+			isAccepting:        false,
+			tokenType:          tokenType,
+			transitions:        make(map[rune][]*NFAState),
+			epsilonTransitions: []*NFAState{},
 		}
-	}
+		s2 := &NFAState{
+			id:                 generateStateID(),
+			isAccepting:        true,
+			tokenType:          tokenType,
+			transitions:        make(map[rune][]*NFAState),
+			epsilonTransitions: []*NFAState{},
+		}
 
-	// 4. Return closure set
-	result := make([]*NFAState, 0, len(closure))
-	for _, state := range closure {
-		result = append(result, state)
 	}
-	return result
+}
+
+func add_transition(from_state NFAState, input string, to_state NFAState) {
+	from_state.transitions.append(input, to_state)
+}
+    
+func connect(frag1 Fragment, frag2 Fragment) *Fragment {
+    add_transition(frag1.accept_state, ε, frag2.start_state)
+    return Fragment(frag1.start_state, frag2.accept_state)
 }

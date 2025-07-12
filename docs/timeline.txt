@@ -13,7 +13,7 @@ Timeline
         - Christian to learn go                 ✓
         - Start up on lexer?                    ✓
         - look into table-driven lexers         ✓
-        - Golang code review		        ✓
+        - Golang code review		            ✓
 
     Results
         - Started up on the lexer/compiler and made test structure
@@ -22,11 +22,21 @@ Timeline
     
 06/20/2025
     Objective
-        - Continue work on lexer
-        - Write lexer tests
-	- Finish BNF
+        - Continue work on lexer                ✓
+        - Write lexer tests                     ✓
+	    - Finish BNF                            ✓
 
     Results
-        - 
+        - BNF Done
+        - Lexer tests implemented
 
+06/27/2025
+    Objective
+        - Start Lexer work                      ✓
+    Results
+        - Thomas began lexer complexities
 
+07/04/2025
+    Objective
+        - Work on lexer NFA Generation algorithm
+        - Thompsons implementation
