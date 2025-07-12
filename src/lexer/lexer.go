@@ -147,6 +147,7 @@ func (l *Lexer) buildTokenNFAs() {
 		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
 		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
 		nfa.Print(l.debug)
+		l.testNFA(nfa, regexDefs[i].Name, regexDefs[i].Pattern)
 		l.tokenNFAs = append(l.tokenNFAs, nfa)
 	}
 
@@ -173,4 +174,8 @@ func (l *Lexer) GetTokenStream() []Token {
 // function to set the content of the lexer
 func (l *Lexer) SetContent(content map[string]string) {
 	l.content = content
+}
+
+func (l *Lexer) testNFA(nfa *NFA, name, pattern string) {
+	// TODO: Not sure if we need this testing functionality if converting to DFA but wrote logic for it anyways
 }
