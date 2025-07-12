@@ -146,6 +146,7 @@ func (l *Lexer) buildTokenNFAs() {
 	for i := range regexDefs {
 		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
 		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
+		nfa.Print(l.debug)
 		l.tokenNFAs = append(l.tokenNFAs, nfa)
 	}
 

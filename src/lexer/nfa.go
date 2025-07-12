@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	debugger "github.com/CFdefense/compiler/src/debug"
@@ -10,11 +9,10 @@ import (
 
 // NFA state structure
 type NFAState struct {
-	id                 int
-	isAccepting        bool
-	tokenType          TokenType
-	transitions        map[string][]*NFAState
-	epsilonTransitions []*NFAState
+	id          int
+	isAccepting bool
+	tokenType   TokenType
+	transitions map[string][]*NFAState
 }
 
 // NFA structure
@@ -41,68 +39,63 @@ func tokenizeRegex(pattern string) []RegexToken {
 	var tokens []RegexToken
 	i := 0
 	for i < len(pattern) {
-		switch pattern[i] {
-		case '\\':
-			// Handle escape sequence - keep as single token
-			if i+1 < len(pattern) {
-				tokens = append(tokens, RegexToken{pattern[i : i+2], "escape"})
-				i += 2
-			} else {
-				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
-				i++
+		// Handle escape sequences: any backslash + character is a single escape token
+		if pattern[i] == '\\' && i+1 < len(pattern) {
+			// Check for \\. pattern (backslash followed by backslash followed by dot)
+			if i+2 < len(pattern) && pattern[i+1] == '\\' && pattern[i+2] == '.' {
+				tokens = append(tokens, RegexToken{pattern[i : i+3], "escape"})
+				i += 3
+				continue
 			}
+			// Regular escape: backslash + any character
+			tokens = append(tokens, RegexToken{pattern[i : i+2], "escape"})
+			i += 2
+			continue
+		}
+
+		switch pattern[i] {
 		case '[':
-			// Handle character class - keep entire class as single token
+			// Handle character class
 			j := i + 1
+			classContent := ""
 			for j < len(pattern) && pattern[j] != ']' {
 				if pattern[j] == '\\' && j+1 < len(pattern) {
+					// Always treat backslash + any character as a single unit inside class
+					classContent += pattern[j : j+2]
 					j += 2
 				} else {
+					classContent += string(pattern[j])
 					j++
 				}
 			}
 			if j < len(pattern) {
-				tokens = append(tokens, RegexToken{pattern[i : j+1], "class"})
+				tok := RegexToken{"[" + classContent + "]", "class"}
+				tokens = append(tokens, tok)
 				i = j + 1
 			} else {
-				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
+				tok := RegexToken{string(pattern[i]), "literal"}
+				tokens = append(tokens, tok)
 				i++
 			}
-		case '(':
-			// Handle grouping - keep parentheses as operators
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
-			i++
-		case ')':
-			// Handle grouping - keep parentheses as operators
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
-			i++
-		case '*', '+', '?':
-			// Handle quantifiers - keep as operators
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
-			i++
-		case '|':
-			// Handle alternation - keep as operator
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
-			i++
-		case '.':
-			// Handle dot - keep as operator
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+		case '(', ')', '*', '+', '?', '|', '.':
+			tok := RegexToken{string(pattern[i]), "operator"}
+			tokens = append(tokens, tok)
 			i++
 		case '^', '$':
-			// Handle anchors - keep as operators
-			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			tok := RegexToken{string(pattern[i]), "anchor"}
+			tokens = append(tokens, tok)
 			i++
 		default:
-			// Handle literals - collect consecutive letters/digits as single token
 			if isLetterOrDigit(pattern[i]) {
 				start := i
 				for i < len(pattern) && isLetterOrDigit(pattern[i]) {
 					i++
 				}
-				tokens = append(tokens, RegexToken{pattern[start:i], "literal"})
+				tok := RegexToken{pattern[start:i], "literal"}
+				tokens = append(tokens, tok)
 			} else {
-				// Single character literal
-				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
+				tok := RegexToken{string(pattern[i]), "literal"}
+				tokens = append(tokens, tok)
 				i++
 			}
 		}
@@ -117,7 +110,20 @@ func isLetterOrDigit(c byte) bool {
 
 // postfix converts a tokenized regex to postfix (RPN) using the shunting yard algorithm
 func postfix(regex string, tokenName string, debug *debugger.Debug) string {
+	if debug != nil {
+		debug.DebugLog(fmt.Sprintf("[%s] RAW PATTERN: %q", tokenName, regex), false)
+	}
 	tokens := tokenizeRegex(regex)
+
+	// Debug: print tokens
+	if debug != nil {
+		tokenStrs := make([]string, len(tokens))
+		for i, t := range tokens {
+			tokenStrs[i] = fmt.Sprintf("%s(%s)", t.Value, t.Type)
+		}
+		debug.DebugLog(fmt.Sprintf("[%s] Tokens: %s", tokenName, strings.Join(tokenStrs, " ")), false)
+	}
+
 	// Operator precedence
 	precedence := map[string]int{
 		"*": 3,
@@ -133,9 +139,17 @@ func postfix(regex string, tokenName string, debug *debugger.Debug) string {
 	var explicit []RegexToken
 	for i := 0; i < len(tokens); i++ {
 		t := tokens[i]
+		// Treat anchors, word boundaries, and character classes as literals for concatenation
+		if t.Type == "anchor" || t.Type == "word_boundary" || t.Type == "class" {
+			t.Type = "literal"
+		}
 		explicit = append(explicit, t)
 		if i+1 < len(tokens) {
 			next := tokens[i+1]
+			// Treat anchors, word boundaries, and character classes as literals for next token too
+			if next.Type == "anchor" || next.Type == "word_boundary" || next.Type == "class" {
+				next.Type = "literal"
+			}
 			// Insert concatenation if:
 			// (literal/class/escape/close paren/quantifier) followed by (literal/class/escape/open paren)
 			if (t.Type == "literal" || t.Type == "class" || t.Type == "escape" ||
@@ -146,6 +160,17 @@ func postfix(regex string, tokenName string, debug *debugger.Debug) string {
 			}
 		}
 	}
+
+	// Debug: print explicit tokens
+	if debug != nil {
+		explicitStrs := make([]string, len(explicit))
+		for i, t := range explicit {
+			explicitStrs[i] = fmt.Sprintf("%s(%s)", t.Value, t.Type)
+		}
+		debug.DebugLog(fmt.Sprintf("[%s] Explicit: %s", tokenName, strings.Join(explicitStrs, " ")), false)
+		debug.DebugLog(fmt.Sprintf("[%s] Token count: %d", tokenName, len(explicit)), false)
+	}
+
 	// Step 2: Shunting Yard
 	var output []string
 	var stack []RegexToken
@@ -183,39 +208,341 @@ func postfix(regex string, tokenName string, debug *debugger.Debug) string {
 }
 
 // thompson's construction
-// TODO: Implement true Thompson construction with regex parsing
-// For now, create placeholder NFAs that will be replaced with proper construction
-// TODO: Parse regex to postfix notation and build proper NFA
-// For now, create a placeholder NFA structure
-func thompsonConstruct(regexPattern string, tokenType TokenType) *NFA {
-	single_literal := regexp.MustCompile(`^(\\.|[^\\.*+?|()[\]{}^$])$`)
-	// concatenation :=
-	// alternation :=
-	// kleen_star :=
-	if single_literal.MatchString(regexPattern) {
-		s1 := &NFAState{
-			id:                 generateStateID(),
-			isAccepting:        false,
-			tokenType:          tokenType,
-			transitions:        make(map[string][]*NFAState),
-			epsilonTransitions: []*NFAState{},
-		}
-		s2 := &NFAState{
-			id:                 generateStateID(),
-			isAccepting:        true,
-			tokenType:          tokenType,
-			transitions:        make(map[string][]*NFAState),
-			epsilonTransitions: []*NFAState{},
-		}
-		add_transition(s1, regexPattern, s2)
+func thompsonConstruct(postfix string, tokenType TokenType) *NFA {
+	tokens := strings.Fields(postfix)
+	type nfaStackElem struct {
+		nfa *NFA
+	}
+	var stack []nfaStackElem
 
-		return &NFA{s1, s2}
+	for _, tok := range tokens {
+		switch tok {
+		case "·": // Concatenation
+			if len(stack) < 2 {
+				panic("thompsonConstruct: not enough operands for concatenation")
+			}
+			b := stack[len(stack)-1].nfa
+			a := stack[len(stack)-2].nfa
+			stack = stack[:len(stack)-2]
+			// Connect a.end to b.start with epsilon
+			add_transition(a.end, "ε", b.start)
+			stack = append(stack, nfaStackElem{&NFA{a.start, b.end}})
+		case "|": // Alternation
+			if len(stack) < 2 {
+				panic("thompsonConstruct: not enough operands for alternation")
+			}
+			b := stack[len(stack)-1].nfa
+			a := stack[len(stack)-2].nfa
+			stack = stack[:len(stack)-2]
+			start := &NFAState{id: generateStateID(), transitions: make(map[string][]*NFAState)}
+			end := &NFAState{id: generateStateID(), isAccepting: true, tokenType: tokenType, transitions: make(map[string][]*NFAState)}
+			add_transition(start, "ε", a.start)
+			add_transition(start, "ε", b.start)
+			add_transition(a.end, "ε", end)
+			add_transition(b.end, "ε", end)
+			stack = append(stack, nfaStackElem{&NFA{start, end}})
+		case "*": // Kleene star
+			if len(stack) < 1 {
+				panic("thompsonConstruct: not enough operands for kleene star")
+			}
+			a := stack[len(stack)-1].nfa
+			stack = stack[:len(stack)-1]
+			start := &NFAState{id: generateStateID(), transitions: make(map[string][]*NFAState)}
+			end := &NFAState{id: generateStateID(), isAccepting: true, tokenType: tokenType, transitions: make(map[string][]*NFAState)}
+			add_transition(start, "ε", a.start)
+			add_transition(start, "ε", end)
+			add_transition(a.end, "ε", a.start)
+			add_transition(a.end, "ε", end)
+			stack = append(stack, nfaStackElem{&NFA{start, end}})
+		case "+": // One or more
+			if len(stack) < 1 {
+				panic("thompsonConstruct: not enough operands for plus")
+			}
+			a := stack[len(stack)-1].nfa
+			stack = stack[:len(stack)-1]
+			start := &NFAState{id: generateStateID(), transitions: make(map[string][]*NFAState)}
+			end := &NFAState{id: generateStateID(), isAccepting: true, tokenType: tokenType, transitions: make(map[string][]*NFAState)}
+			add_transition(start, "ε", a.start)
+			add_transition(a.end, "ε", a.start)
+			add_transition(a.end, "ε", end)
+			stack = append(stack, nfaStackElem{&NFA{start, end}})
+		case "?": // Zero or one
+			if len(stack) < 1 {
+				panic("thompsonConstruct: not enough operands for question")
+			}
+			a := stack[len(stack)-1].nfa
+			stack = stack[:len(stack)-1]
+			start := &NFAState{id: generateStateID(), transitions: make(map[string][]*NFAState)}
+			end := &NFAState{id: generateStateID(), isAccepting: true, tokenType: tokenType, transitions: make(map[string][]*NFAState)}
+			add_transition(start, "ε", a.start)
+			add_transition(start, "ε", end)
+			add_transition(a.end, "ε", end)
+			stack = append(stack, nfaStackElem{&NFA{start, end}})
+		default:
+			// Handle different token types
+			start := &NFAState{id: generateStateID(), transitions: make(map[string][]*NFAState)}
+			end := &NFAState{id: generateStateID(), isAccepting: true, tokenType: tokenType, transitions: make(map[string][]*NFAState)}
 
-	} else {
-		return &NFA{}
+			if strings.HasPrefix(tok, "[") && strings.HasSuffix(tok, "]") {
+				// Character class - parse and create transitions for each character
+				classContent := tok[1 : len(tok)-1] // Remove brackets
+				if strings.HasPrefix(classContent, "^") {
+					// Negated character class
+					// For simplicity, create a transition for any character not in the class
+					// This is a simplified implementation
+					add_transition(start, "any", end)
+				} else {
+					// Regular character class
+					// Parse character ranges and individual characters
+					chars := parseCharacterClass(classContent)
+					for _, char := range chars {
+						add_transition(start, char, end)
+					}
+				}
+			} else if strings.HasPrefix(tok, "\\") {
+				// Escape sequence
+				if len(tok) == 2 {
+					// Single character escape
+					escapedChar := tok[1]
+					switch escapedChar {
+					case 'n':
+						add_transition(start, "\n", end)
+					case 't':
+						add_transition(start, "\t", end)
+					case 'r':
+						add_transition(start, "\r", end)
+					case '\\':
+						add_transition(start, "\\", end)
+					case '"':
+						add_transition(start, "\"", end)
+					case '\'':
+						add_transition(start, "'", end)
+					case 'b':
+						// Word boundary - this is a special case
+						// For now, treat as a literal character
+						add_transition(start, "\\b", end)
+					case 'd':
+						// Digit class
+						for i := '0'; i <= '9'; i++ {
+							add_transition(start, string(i), end)
+						}
+					case 's':
+						// Whitespace class
+						add_transition(start, " ", end)
+						add_transition(start, "\t", end)
+						add_transition(start, "\n", end)
+						add_transition(start, "\r", end)
+					case 'w':
+						// Word character class
+						for i := 'a'; i <= 'z'; i++ {
+							add_transition(start, string(i), end)
+						}
+						for i := 'A'; i <= 'Z'; i++ {
+							add_transition(start, string(i), end)
+						}
+						for i := '0'; i <= '9'; i++ {
+							add_transition(start, string(i), end)
+						}
+						add_transition(start, "_", end)
+					default:
+						// Any other escaped character
+						add_transition(start, string(escapedChar), end)
+					}
+				} else if len(tok) == 3 && tok[1] == '\\' && tok[2] == '.' {
+					// Special case: \\. (backslash followed by any character)
+					// This represents any character
+					add_transition(start, "any", end)
+				}
+			} else if tok == "^" || tok == "$" {
+				// Anchors - these are position assertions
+				// For now, treat as literal tokens since we need context
+				add_transition(start, tok, end)
+			} else if tok == "." {
+				// Dot operator - matches any character
+				add_transition(start, "any", end)
+			} else {
+				// Regular literal
+				add_transition(start, tok, end)
+			}
+
+			stack = append(stack, nfaStackElem{&NFA{start, end}})
+		}
+	}
+	if len(stack) != 1 {
+		panic("thompsonConstruct: stack did not end with exactly one NFA")
+	}
+	return stack[0].nfa
+}
+
+// parseCharacterClass parses a character class and returns all characters it matches
+func parseCharacterClass(classContent string) []string {
+	var chars []string
+	i := 0
+	for i < len(classContent) {
+		if i+2 < len(classContent) && classContent[i+1] == '-' {
+			// Character range
+			start := classContent[i]
+			end := classContent[i+2]
+			for c := start; c <= end; c++ {
+				chars = append(chars, string(c))
+			}
+			i += 3
+		} else {
+			// Single character
+			chars = append(chars, string(classContent[i]))
+			i++
+		}
+	}
+	return chars
+}
+
+// add_transition adds a defined transition to the NFA
+func add_transition(from_state *NFAState, input string, to_state *NFAState) {
+	from_state.transitions[input] = append(from_state.transitions[input], to_state)
+}
+
+// print the NFA structure
+func (nfa *NFA) Print(debug *debugger.Debug) {
+	visited := make(map[int]bool)
+	var queue []*NFAState
+	queue = append(queue, nfa.start)
+	debug.DebugLog("NFA Structure:", false)
+	for len(queue) > 0 {
+		state := queue[0]
+		queue = queue[1:]
+		if visited[state.id] {
+			continue
+		}
+		visited[state.id] = true
+		debug.DebugLog(fmt.Sprintf("State %d", state.id), false)
+		if state.isAccepting {
+			debug.DebugLog(fmt.Sprintf("[accepting, type=%s]", state.tokenType.String()), false)
+		}
+		debug.DebugLog("", false)
+		for symbol, targets := range state.transitions {
+			for _, target := range targets {
+				debug.DebugLog(fmt.Sprintf("  %d --%s--> %d", state.id, symbol, target.id), false)
+				queue = append(queue, target)
+			}
+		}
 	}
 }
 
-func add_transition(from_state *NFAState, input string, to_state *NFAState) {
-	from_state.transitions[input] = append(from_state.transitions[input], to_state)
+// TestNFA validates an NFA by testing it with various inputs
+func (nfa *NFA) TestNFA(testCases []string, expectedResults []bool, debug *debugger.Debug) bool {
+	if len(testCases) != len(expectedResults) {
+		debug.DebugLog("TestNFA: test cases and expected results must have same length", true)
+		return false
+	}
+
+	allPassed := true
+	for i, testInput := range testCases {
+		result := nfa.Simulate(testInput)
+		expected := expectedResults[i]
+		if result != expected {
+			debug.DebugLog(fmt.Sprintf("TestNFA FAILED: input '%s', expected %v, got %v", testInput, expected, result), true)
+			allPassed = false
+		} else {
+			debug.DebugLog(fmt.Sprintf("TestNFA PASSED: input '%s' -> %v", testInput, result), false)
+		}
+	}
+	return allPassed
+}
+
+// Simulate runs an NFA on a given input string
+func (nfa *NFA) Simulate(input string) bool {
+	// Start with epsilon closure of start state
+	currentStates := nfa.epsilonClosure([]*NFAState{nfa.start})
+
+	// Debug: show initial states
+	fmt.Printf("Starting simulation with input: %q\n", input)
+	fmt.Printf("Initial states: %v\n", getStateIDs(currentStates))
+
+	for i := 0; i < len(input); i++ {
+		char := string(input[i])
+		nextStates := []*NFAState{}
+
+		fmt.Printf("Processing character '%s' at position %d\n", char, i)
+
+		// For each current state, find all states reachable on this character
+		for _, state := range currentStates {
+			if transitions, exists := state.transitions[char]; exists {
+				fmt.Printf("  State %d has transition on '%s' to states: %v\n",
+					state.id, char, getStateIDs(transitions))
+				nextStates = append(nextStates, transitions...)
+			}
+			// Also check for "any" transitions (dot operator)
+			if transitions, exists := state.transitions["any"]; exists {
+				fmt.Printf("  State %d has 'any' transition to states: %v\n",
+					state.id, getStateIDs(transitions))
+				nextStates = append(nextStates, transitions...)
+			}
+		}
+
+		// Take epsilon closure of next states
+		currentStates = nfa.epsilonClosure(nextStates)
+		fmt.Printf("After epsilon closure: %v\n", getStateIDs(currentStates))
+
+		// If no states, reject
+		if len(currentStates) == 0 {
+			fmt.Printf("No states remaining - REJECTING\n")
+			return false
+		}
+	}
+
+	// Check if any accepting state is in current states
+	for _, state := range currentStates {
+		if state.isAccepting {
+			fmt.Printf("Found accepting state %d (type: %s) - ACCEPTING\n",
+				state.id, state.tokenType.String())
+			return true
+		}
+	}
+
+	fmt.Printf("No accepting states found - REJECTING\n")
+	return false
+}
+
+// Helper function to get state IDs for debugging
+func getStateIDs(states []*NFAState) []int {
+	ids := make([]int, len(states))
+	for i, state := range states {
+		ids[i] = state.id
+	}
+	return ids
+}
+
+// epsilonClosure computes the epsilon closure of a set of states
+func (nfa *NFA) epsilonClosure(states []*NFAState) []*NFAState {
+	closure := make(map[int]*NFAState)
+	var stack []*NFAState
+
+	// Initialize with input states
+	for _, state := range states {
+		closure[state.id] = state
+		stack = append(stack, state)
+	}
+
+	// Process stack until empty
+	for len(stack) > 0 {
+		state := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		// Add all states reachable via epsilon transitions
+		if transitions, exists := state.transitions["ε"]; exists {
+			for _, nextState := range transitions {
+				if _, visited := closure[nextState.id]; !visited {
+					closure[nextState.id] = nextState
+					stack = append(stack, nextState)
+				}
+			}
+		}
+	}
+
+	// Convert map back to slice
+	result := make([]*NFAState, 0, len(closure))
+	for _, state := range closure {
+		result = append(result, state)
+	}
+	return result
 }
