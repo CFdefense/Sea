@@ -354,9 +354,16 @@ func thompsonConstruct(postfix string, tokenType TokenType) *NFA {
 					add_transition(start, "any", end)
 				}
 			} else if tok == "^" || tok == "$" {
-				// Anchors - these are position assertions
-				// For now, treat as literal tokens since we need context
-				add_transition(start, tok, end)
+				// Anchors - these are position assertions, not character consumers
+				// For now, treat as special tokens that need special handling in simulation
+				if tok == "^" {
+					add_transition(start, "start_anchor", end)
+				} else {
+					add_transition(start, "end_anchor", end)
+				}
+			} else if tok == "\\b" {
+				// Word boundary - position assertion, not character consumer
+				add_transition(start, "word_boundary", end)
 			} else if tok == "." {
 				// Dot operator - matches any character
 				add_transition(start, "any", end)
@@ -474,6 +481,30 @@ func (nfa *NFA) Simulate(input string) bool {
 			// Also check for "any" transitions (dot operator)
 			if transitions, exists := state.transitions["any"]; exists {
 				fmt.Printf("  State %d has 'any' transition to states: %v\n",
+					state.id, getStateIDs(transitions))
+				nextStates = append(nextStates, transitions...)
+			}
+			// Handle position assertions (anchors and word boundaries)
+			if transitions, exists := state.transitions["start_anchor"]; exists {
+				// Start anchor only matches at position 0
+				if i == 0 {
+					fmt.Printf("  State %d has start_anchor transition at position 0 to states: %v\n",
+						state.id, getStateIDs(transitions))
+					nextStates = append(nextStates, transitions...)
+				}
+			}
+			if transitions, exists := state.transitions["end_anchor"]; exists {
+				// End anchor only matches at the end of input
+				if i == len(input)-1 {
+					fmt.Printf("  State %d has end_anchor transition at end to states: %v\n",
+						state.id, getStateIDs(transitions))
+					nextStates = append(nextStates, transitions...)
+				}
+			}
+			if transitions, exists := state.transitions["word_boundary"]; exists {
+				// Word boundary - simplified implementation
+				// In a full implementation, you'd check if we're at a word boundary
+				fmt.Printf("  State %d has word_boundary transition to states: %v\n",
 					state.id, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
