@@ -121,6 +121,14 @@ const (
 	T_ASM_LABEL       // Labels for jumps and functions
 )
 
+// TokenRegexDef represents a regex definition for a token
+type TokenRegexDef struct {
+	Name      string
+	Pattern   string
+	Postfix   string
+	TokenType TokenType
+}
+
 // Individual token object
 type Token struct {
 	token_type TokenType

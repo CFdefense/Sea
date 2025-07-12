@@ -119,41 +119,32 @@ func (l *Lexer) Analyze() {
 func (l *Lexer) buildTokenNFAs() {
 	l.debug.DebugLog("lexer: building NFAs", false)
 
-	// convert token patterns, order matters for precedence
-	keywordNFA := thompsonConstruct(KEYWORD_PATTERN.String(), T_KEYWORD)
-	constantNFA := thompsonConstruct(CONSTANT_PATTERN.String(), T_CONSTANT)
-	identifierNFA := thompsonConstruct(IDENTIFIER_PATTERN.String(), T_IDENTIFIER)
+	regexDefs := []TokenRegexDef{
+		{"KEYWORD", KEYWORD_PATTERN.String(), "", T_KEYWORD},
+		{"CONSTANT", CONSTANT_PATTERN.String(), "", T_CONSTANT},
+		{"IDENTIFIER", IDENTIFIER_PATTERN.String(), "", T_IDENTIFIER},
+		{"BOOL", BOOL_PATTERN.String(), "", T_LITERAL},
+		{"NUMBER", NUMBER_PATTERN.String(), "", T_LITERAL},
+		{"STRING", STRING_PATTERN.String(), "", T_STRING_LITERAL},
+		{"CHAR", CHAR_PATTERN.String(), "", T_CHAR_LITERAL},
+		{"ESCAPE", ESCAPE_SEQUENCE_PATTERN.String(), "", T_ESCAPE_SEQUENCE},
+		{"OPERATOR", OPERATOR_PATTERN.String(), "", T_OPERATOR},
+		{"PUNCTUATOR", PUNCTUATOR_PATTERN.String(), "", T_PUNCTUATOR},
+		{"SPECIAL", SPECIAL_PATTERN.String(), "", T_SPECIAL},
+		{"ASM_INSTRUCTION", ASM_INSTRUCTION.String(), "", T_ASM_INSTRUCTION},
+		{"ASM_REGISTER", ASM_REGISTER.String(), "", T_ASM_REGISTER},
+		{"ASM_IMMEDIATE", ASM_IMMEDIATE.String(), "", T_ASM_IMMEDIATE},
+		{"ASM_MEMORY_REF", ASM_MEMORY_REF.String(), "", T_ASM_MEMORY_REF},
+		{"ASM_LABEL", ASM_LABEL.String(), "", T_ASM_LABEL},
+		{"SINGLE_COMMENT", SINGLE_LINE_COMMENT_PATTERN.String(), "", T_SINGLE_LINE_COMMENT},
+		{"MULTI_COMMENT", MULTI_LINE_COMMENT_PATTERN.String(), "", T_MULTI_LINE_COMMENT},
+	}
 
-	// literals and operators
-	boolNFA := thompsonConstruct(BOOL_PATTERN.String(), T_LITERAL)
-	numberNFA := thompsonConstruct(NUMBER_PATTERN.String(), T_LITERAL)
-	stringNFA := thompsonConstruct(STRING_PATTERN.String(), T_STRING_LITERAL)
-	charNFA := thompsonConstruct(CHAR_PATTERN.String(), T_CHAR_LITERAL)
-	escapeNFA := thompsonConstruct(ESCAPE_SEQUENCE_PATTERN.String(), T_ESCAPE_SEQUENCE)
-
-	operatorNFA := thompsonConstruct(OPERATOR_PATTERN.String(), T_OPERATOR)
-	punctuatorNFA := thompsonConstruct(PUNCTUATOR_PATTERN.String(), T_PUNCTUATOR)
-	specialNFA := thompsonConstruct(SPECIAL_PATTERN.String(), T_SPECIAL)
-
-	// assembly-specific NFAs
-	asmInstructionNFA := thompsonConstruct(ASM_INSTRUCTION.String(), T_ASM_INSTRUCTION)
-	asmRegisterNFA := thompsonConstruct(ASM_REGISTER.String(), T_ASM_REGISTER)
-	asmImmediateNFA := thompsonConstruct(ASM_IMMEDIATE.String(), T_ASM_IMMEDIATE)
-	asmMemoryRefNFA := thompsonConstruct(ASM_MEMORY_REF.String(), T_ASM_MEMORY_REF)
-	asmLabelNFA := thompsonConstruct(ASM_LABEL.String(), T_ASM_LABEL)
-
-	// comments
-	singleCommentNFA := thompsonConstruct(SINGLE_LINE_COMMENT_PATTERN.String(), T_SINGLE_LINE_COMMENT)
-	multiCommentNFA := thompsonConstruct(MULTI_LINE_COMMENT_PATTERN.String(), T_MULTI_LINE_COMMENT)
-
-	// store NFAs in priority order for lexing
-	l.tokenNFAs = []*NFA{
-		keywordNFA, constantNFA, identifierNFA,
-		boolNFA, numberNFA, stringNFA, charNFA, escapeNFA,
-		operatorNFA, punctuatorNFA, specialNFA,
-		asmInstructionNFA, asmRegisterNFA, asmImmediateNFA,
-		asmMemoryRefNFA, asmLabelNFA,
-		singleCommentNFA, multiCommentNFA,
+	l.tokenNFAs = []*NFA{} // reset NFAs
+	for i := range regexDefs {
+		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
+		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
+		l.tokenNFAs = append(l.tokenNFAs, nfa)
 	}
 
 	l.debug.DebugLog("lexer: success on NFAs", false)
