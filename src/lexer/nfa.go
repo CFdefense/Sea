@@ -43,7 +43,7 @@ func tokenizeRegex(pattern string) []RegexToken {
 	for i < len(pattern) {
 		switch pattern[i] {
 		case '\\':
-			// Handle escape sequence
+			// Handle escape sequence - keep as single token
 			if i+1 < len(pattern) {
 				tokens = append(tokens, RegexToken{pattern[i : i+2], "escape"})
 				i += 2
@@ -52,7 +52,7 @@ func tokenizeRegex(pattern string) []RegexToken {
 				i++
 			}
 		case '[':
-			// Handle character class
+			// Handle character class - keep entire class as single token
 			j := i + 1
 			for j < len(pattern) && pattern[j] != ']' {
 				if pattern[j] == '\\' && j+1 < len(pattern) {
@@ -68,15 +68,51 @@ func tokenizeRegex(pattern string) []RegexToken {
 				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
 				i++
 			}
-		case '(', ')', '*', '+', '?', '|', '.', '^', '$':
+		case '(':
+			// Handle grouping - keep parentheses as operators
+			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			i++
+		case ')':
+			// Handle grouping - keep parentheses as operators
+			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			i++
+		case '*', '+', '?':
+			// Handle quantifiers - keep as operators
+			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			i++
+		case '|':
+			// Handle alternation - keep as operator
+			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			i++
+		case '.':
+			// Handle dot - keep as operator
+			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
+			i++
+		case '^', '$':
+			// Handle anchors - keep as operators
 			tokens = append(tokens, RegexToken{string(pattern[i]), "operator"})
 			i++
 		default:
-			tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
-			i++
+			// Handle literals - collect consecutive letters/digits as single token
+			if isLetterOrDigit(pattern[i]) {
+				start := i
+				for i < len(pattern) && isLetterOrDigit(pattern[i]) {
+					i++
+				}
+				tokens = append(tokens, RegexToken{pattern[start:i], "literal"})
+			} else {
+				// Single character literal
+				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
+				i++
+			}
 		}
 	}
 	return tokens
+}
+
+// Helper function to check if character is letter or digit
+func isLetterOrDigit(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'
 }
 
 // postfix converts a tokenized regex to postfix (RPN) using the shunting yard algorithm
@@ -101,9 +137,11 @@ func postfix(regex string, tokenName string, debug *debugger.Debug) string {
 		if i+1 < len(tokens) {
 			next := tokens[i+1]
 			// Insert concatenation if:
-			// (literal/class/escape/close paren/operator *+?) followed by (literal/class/escape/open paren)
-			if (t.Type == "literal" || t.Type == "class" || t.Type == "escape" || (t.Type == "operator" && (t.Value == ")" || t.Value == "*" || t.Value == "+" || t.Value == "?"))) &&
-				(next.Type == "literal" || next.Type == "class" || next.Type == "escape" || (next.Type == "operator" && next.Value == "(")) {
+			// (literal/class/escape/close paren/quantifier) followed by (literal/class/escape/open paren)
+			if (t.Type == "literal" || t.Type == "class" || t.Type == "escape" ||
+				(t.Type == "operator" && (t.Value == ")" || t.Value == "*" || t.Value == "+" || t.Value == "?"))) &&
+				(next.Type == "literal" || next.Type == "class" || next.Type == "escape" ||
+					(next.Type == "operator" && next.Value == "(")) {
 				explicit = append(explicit, RegexToken{"·", "operator"})
 			}
 		}

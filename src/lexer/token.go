@@ -2,63 +2,85 @@ package lexer
 
 import "regexp"
 
+// Original regex pattern strings (for postfix conversion)
+const (
+	KEYWORD_PATTERN_STR             = `^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|switch|case|default|break|continue|goto|sizeof|asm)\b`
+	CONSTANT_PATTERN_STR            = `^[A-Z][A-Z0-9_]*`
+	IDENTIFIER_PATTERN_STR          = `^[a-zA-Z_][a-zA-Z0-9_]*`
+	BOOL_PATTERN_STR                = `^(true|false)\b`
+	NUMBER_PATTERN_STR              = `^((0x[0-9a-fA-F]+|0b[01]+|[0-9]+))`
+	OPERATOR_PATTERN_STR            = `^((\+\+|--|==|!=|<=|>=|&&|\|\||->|<<|>>|//|[-+*/%<>!&|^~=]=|[-+*/%<>!&|^~]))`
+	PUNCTUATOR_PATTERN_STR          = `^[{}\[\]();,.:?]`
+	SPECIAL_PATTERN_STR             = `^((@|&mut\b|&|#|\$))`
+	STRING_PATTERN_STR              = `^"([^"\\]|\\.)*"`
+	CHAR_PATTERN_STR                = `^'([^'\\]|\\.)'`
+	ESCAPE_SEQUENCE_PATTERN_STR     = `^\\[ntr\\"']`
+	SINGLE_LINE_COMMENT_PATTERN_STR = `^//[^\n]*`
+	MULTI_LINE_COMMENT_PATTERN_STR  = `^/\*[\s\S]*?\*/`
+	ASM_INSTRUCTION_STR             = `^[a-z][a-z0-9]*\b`
+	ASM_REGISTER_STR                = `^%(([re][a-z]{2}|[re]?[0-9]+|[re]?[ax|bx|cx|dx|si|di|sp|bp]|[re]?ip))\b`
+	ASM_IMMEDIATE_STR               = `^\$?((0x[0-9a-fA-F]+|[0-9]+|[a-zA-Z_][a-zA-Z0-9_]*))\b`
+	ASM_MEMORY_REF_STR              = `^(-?\d+)?\s*\(\s*%[a-zA-Z0-9]+\s*\)`
+	ASM_LABEL_STR                   = `^[a-zA-Z_][a-zA-Z0-9_]*:`
+)
+
 // Regex patterns for token matching
 var (
 	// Patterns for each token type
-	IDENTIFIER_PATTERN = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*`)
+	IDENTIFIER_PATTERN = regexp.MustCompile(IDENTIFIER_PATTERN_STR)
 
 	// Operators including all arithmetic, logical, bitwise, and assignment operators
-	OPERATOR_PATTERN = regexp.MustCompile(`^(\+\+|--|==|!=|<=|>=|&&|\|\||->|<<|>>|//|[-+*/%<>!&|^~=]=|[-+*/%<>!&|^~])`)
+	OPERATOR_PATTERN = regexp.MustCompile(OPERATOR_PATTERN_STR)
 
 	// Constants (all uppercase)
-	CONSTANT_PATTERN = regexp.MustCompile(`^[A-Z][A-Z0-9_]*`)
+	CONSTANT_PATTERN = regexp.MustCompile(CONSTANT_PATTERN_STR)
 
 	// All language keywords
-	KEYWORD_PATTERN = regexp.MustCompile(`^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|switch|case|default|break|continue|goto|sizeof|asm)\b`)
+	KEYWORD_PATTERN = regexp.MustCompile(KEYWORD_PATTERN_STR)
 
 	// Numeric literals including hex and binary
-	NUMBER_PATTERN = regexp.MustCompile(`^(0x[0-9a-fA-F]+|0b[01]+|[0-9]+)`)
+	NUMBER_PATTERN = regexp.MustCompile(NUMBER_PATTERN_STR)
 
 	// Boolean literals
-	BOOL_PATTERN = regexp.MustCompile(`^(true|false)\b`)
+	BOOL_PATTERN = regexp.MustCompile(BOOL_PATTERN_STR)
 
 	// Punctuators including all delimiters and structural tokens
-	PUNCTUATOR_PATTERN = regexp.MustCompile(`^[{}\[\]();,.:?]`)
+	PUNCTUATOR_PATTERN = regexp.MustCompile(PUNCTUATOR_PATTERN_STR)
 
 	// Special tokens including decorators and reference operators
-	SPECIAL_PATTERN = regexp.MustCompile(`^(@|&mut\b|&|#|\$)`)
+	SPECIAL_PATTERN = regexp.MustCompile(SPECIAL_PATTERN_STR)
 
 	// String literals with escape sequences
-	STRING_PATTERN = regexp.MustCompile(`^"([^"\\]|\\.)*"`)
+	STRING_PATTERN = regexp.MustCompile(STRING_PATTERN_STR)
 
 	// Character literals
-	CHAR_PATTERN = regexp.MustCompile(`^'([^'\\]|\\.)'`)
+	CHAR_PATTERN = regexp.MustCompile(CHAR_PATTERN_STR)
 
 	// Escape sequences
-	ESCAPE_SEQUENCE_PATTERN = regexp.MustCompile(`^\\[ntr\\"']`)
+	ESCAPE_SEQUENCE_PATTERN = regexp.MustCompile(ESCAPE_SEQUENCE_PATTERN_STR)
 
 	// Comments
-	SINGLE_LINE_COMMENT_PATTERN = regexp.MustCompile(`^//[^\n]*`)
-	MULTI_LINE_COMMENT_PATTERN  = regexp.MustCompile(`^/\*[\s\S]*?\*/`)
+	SINGLE_LINE_COMMENT_PATTERN = regexp.MustCompile(SINGLE_LINE_COMMENT_PATTERN_STR)
+	MULTI_LINE_COMMENT_PATTERN  = regexp.MustCompile(MULTI_LINE_COMMENT_PATTERN_STR)
 
 	// ASM-specific patterns
 	ASM_BLOCK_START = regexp.MustCompile(`^asm\s*{`)
 	ASM_BLOCK_END   = regexp.MustCompile(`^}`)
 
 	// Assembly instruction pattern (e.g., "mov", "push", "pop", "call")
-	ASM_INSTRUCTION = regexp.MustCompile(`^[a-z][a-z0-9]*\b`)
+	ASM_INSTRUCTION = regexp.MustCompile(ASM_INSTRUCTION_STR)
 
 	// Register pattern (e.g., %rax, %rbx, %eax, %r8)
-	ASM_REGISTER = regexp.MustCompile(`^%([re][a-z]{2}|[re]?[0-9]+|[re]?[ax|bx|cx|dx|si|di|sp|bp]|[re]?ip)\b`)
+	ASM_REGISTER = regexp.MustCompile(ASM_REGISTER_STR)
 
 	// Immediate value pattern (e.g., $123, $0xFF, label_name)
-	ASM_IMMEDIATE = regexp.MustCompile(`^\$?(0x[0-9a-fA-F]+|[0-9]+|[a-zA-Z_][a-zA-Z0-9_]*)\b`)
+	ASM_IMMEDIATE = regexp.MustCompile(ASM_IMMEDIATE_STR)
 
 	// Memory reference pattern (e.g., (%rax), 8(%rbp), -16(%rbp))
-	ASM_MEMORY_REF = regexp.MustCompile(`^(-?\d+)?\s*\(\s*%[a-zA-Z0-9]+\s*\)`)
+	ASM_MEMORY_REF = regexp.MustCompile(ASM_MEMORY_REF_STR)
 
 	// Assembly label pattern (e.g., loop_start:, main:)
-	ASM_LABEL = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*:`)
+	ASM_LABEL = regexp.MustCompile(ASM_LABEL_STR)
 
 	// Operand separator
 	ASM_SEPARATOR = regexp.MustCompile(`^,\s*`)
