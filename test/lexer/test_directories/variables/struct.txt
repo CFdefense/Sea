@@ -1,0 +1,5 @@
+// Struct definition
+struct Point {
+    type int x;
+    type int y;
+};
