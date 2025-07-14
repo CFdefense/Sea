@@ -41,12 +41,6 @@ func tokenizeRegex(pattern string) []RegexToken {
 	for i < len(pattern) {
 		// Handle escape sequences: any backslash + character is a single escape token
 		if pattern[i] == '\\' && i+1 < len(pattern) {
-			// Check for \\. pattern (backslash followed by backslash followed by dot)
-			if i+2 < len(pattern) && pattern[i+1] == '\\' && pattern[i+2] == '.' {
-				tokens = append(tokens, RegexToken{pattern[i : i+3], "escape"})
-				i += 3
-				continue
-			}
 			// Regular escape: backslash + any character
 			tokens = append(tokens, RegexToken{pattern[i : i+2], "escape"})
 			i += 2
@@ -106,6 +100,36 @@ func tokenizeRegex(pattern string) []RegexToken {
 // Helper function to check if character is letter or digit
 func isLetterOrDigit(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'
+}
+
+// check if a character is a word character
+func isWordChar(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'
+}
+
+// check if at word position i
+func isAtWordBoundary(input string, i int) bool {
+	// a word boundary occurs when:
+	// string starts with word char
+	// string ends with word char
+	// current and previous chars are not word chars
+	// current char is not word char and previous is word char
+
+	if i == 0 {
+		// At start
+		return len(input) > 0 && isWordChar(input[0])
+	}
+
+	if i >= len(input) {
+		// At end
+		return len(input) > 0 && isWordChar(input[len(input)-1])
+	}
+
+	// In middle
+	prevIsWord := isWordChar(input[i-1])
+	currIsWord := isWordChar(input[i])
+
+	return prevIsWord != currIsWord
 }
 
 // postfix converts a tokenized regex to postfix (RPN) using the shunting yard algorithm
@@ -318,9 +342,8 @@ func thompsonConstruct(postfix string, tokenType TokenType) *NFA {
 					case '\'':
 						add_transition(start, "'", end)
 					case 'b':
-						// Word boundary - this is a special case
-						// For now, treat as a literal character
-						add_transition(start, "\\b", end)
+						// Word boundary position assertion
+						add_transition(start, "word_boundary", end)
 					case 'd':
 						// Digit class
 						for i := '0'; i <= '9'; i++ {
@@ -348,10 +371,6 @@ func thompsonConstruct(postfix string, tokenType TokenType) *NFA {
 						// Any other escaped character
 						add_transition(start, string(escapedChar), end)
 					}
-				} else if len(tok) == 3 && tok[1] == '\\' && tok[2] == '.' {
-					// Special case: \\. (backslash followed by any character)
-					// This represents any character
-					add_transition(start, "any", end)
 				}
 			} else if tok == "^" || tok == "$" {
 				// Anchors - these are position assertions, not character consumers
@@ -465,11 +484,52 @@ func (nfa *NFA) Simulate(input string) bool {
 	fmt.Printf("Starting simulation with input: %q\n", input)
 	fmt.Printf("Initial states: %v\n", getStateIDs(currentStates))
 
+	// Handle start anchor (^), check at position 0
+	nextStates := []*NFAState{}
+	for _, state := range currentStates {
+		if transitions, exists := state.transitions["start_anchor"]; exists {
+			fmt.Printf("  State %d has start_anchor transition to states: %v\n",
+				state.id, getStateIDs(transitions))
+			nextStates = append(nextStates, transitions...)
+		}
+	}
+	if len(nextStates) > 0 {
+		currentStates = nfa.epsilonClosure(nextStates)
+		fmt.Printf("After start anchor and epsilon closure: %v\n", getStateIDs(currentStates))
+	}
+
+	// Check for word boundary at start of input
+	if isAtWordBoundary(input, 0) {
+		nextStates = []*NFAState{}
+		for _, state := range currentStates {
+			if transitions, exists := state.transitions["word_boundary"]; exists {
+				fmt.Printf("  State %d has word_boundary transition at start to states: %v\n",
+					state.id, getStateIDs(transitions))
+				nextStates = append(nextStates, transitions...)
+			}
+		}
+		if len(nextStates) > 0 {
+			currentStates = nfa.epsilonClosure(nextStates)
+			fmt.Printf("After start word boundary and epsilon closure: %v\n", getStateIDs(currentStates))
+		}
+	}
+
 	for i := 0; i < len(input); i++ {
 		char := string(input[i])
-		nextStates := []*NFAState{}
+		nextStates = []*NFAState{}
 
 		fmt.Printf("Processing character '%s' at position %d\n", char, i)
+
+		// Check for word boundary at current position before consuming character
+		if isAtWordBoundary(input, i) {
+			for _, state := range currentStates {
+				if transitions, exists := state.transitions["word_boundary"]; exists {
+					fmt.Printf("  State %d has word_boundary transition at position %d to states: %v\n",
+						state.id, i, getStateIDs(transitions))
+					nextStates = append(nextStates, transitions...)
+				}
+			}
+		}
 
 		// For each current state, find all states reachable on this character
 		for _, state := range currentStates {
@@ -484,30 +544,6 @@ func (nfa *NFA) Simulate(input string) bool {
 					state.id, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
-			// Handle position assertions (anchors and word boundaries)
-			if transitions, exists := state.transitions["start_anchor"]; exists {
-				// Start anchor only matches at position 0
-				if i == 0 {
-					fmt.Printf("  State %d has start_anchor transition at position 0 to states: %v\n",
-						state.id, getStateIDs(transitions))
-					nextStates = append(nextStates, transitions...)
-				}
-			}
-			if transitions, exists := state.transitions["end_anchor"]; exists {
-				// End anchor only matches at the end of input
-				if i == len(input)-1 {
-					fmt.Printf("  State %d has end_anchor transition at end to states: %v\n",
-						state.id, getStateIDs(transitions))
-					nextStates = append(nextStates, transitions...)
-				}
-			}
-			if transitions, exists := state.transitions["word_boundary"]; exists {
-				// Word boundary - simplified implementation
-				// In a full implementation, you'd check if we're at a word boundary
-				fmt.Printf("  State %d has word_boundary transition to states: %v\n",
-					state.id, getStateIDs(transitions))
-				nextStates = append(nextStates, transitions...)
-			}
 		}
 
 		// Take epsilon closure of next states
@@ -519,6 +555,36 @@ func (nfa *NFA) Simulate(input string) bool {
 			fmt.Printf("No states remaining - REJECTING\n")
 			return false
 		}
+	}
+
+	// Check for word boundary at end of input
+	if isAtWordBoundary(input, len(input)) {
+		nextStates = []*NFAState{}
+		for _, state := range currentStates {
+			if transitions, exists := state.transitions["word_boundary"]; exists {
+				fmt.Printf("  State %d has word_boundary transition at end to states: %v\n",
+					state.id, getStateIDs(transitions))
+				nextStates = append(nextStates, transitions...)
+			}
+		}
+		if len(nextStates) > 0 {
+			currentStates = nfa.epsilonClosure(nextStates)
+			fmt.Printf("After end word boundary and epsilon closure: %v\n", getStateIDs(currentStates))
+		}
+	}
+
+	// Handle end anchor ($)
+	nextStates = []*NFAState{} // Reset nextStates
+	for _, state := range currentStates {
+		if transitions, exists := state.transitions["end_anchor"]; exists {
+			fmt.Printf("  State %d has end_anchor transition to states: %v\n",
+				state.id, getStateIDs(transitions))
+			nextStates = append(nextStates, transitions...)
+		}
+	}
+	if len(nextStates) > 0 {
+		currentStates = nfa.epsilonClosure(nextStates)
+		fmt.Printf("After end anchor and epsilon closure: %v\n", getStateIDs(currentStates))
 	}
 
 	// Check if any accepting state is in current states
