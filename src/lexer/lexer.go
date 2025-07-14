@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"regexp"
-
 	debugger "github.com/CFdefense/compiler/src/debug"
 )
 
@@ -31,22 +29,6 @@ func InitializeLexer(debug bool) *Lexer {
 		debug:        debugger.InitializeDebugger("LEX", debug),
 		tokenNFAs:    []*NFA{}, // initialize empty NFA slice
 	}
-}
-
-// NFA state structure
-type NFAState struct {
-	id                 int
-	isAccepting        bool
-	tokenType          TokenType
-	transitions        map[rune][]*NFAState
-	epsilonTransitions []*NFAState
-	compiledRegex      *regexp.Regexp
-}
-
-// NFA structure
-type NFA struct {
-	start *NFAState
-	end   *NFAState
 }
 
 // function responsible for all things lexical analysis
@@ -132,122 +114,44 @@ func (l *Lexer) Analyze() {
 }
 
 // thompson's algorithm impl:
-// 1. convert each token pattern to NFAs
+// 1. convert each token regex pattern to NFAs
 // 2. store NFAs in lexer struct for later use in steps 2, 3 ^^
 func (l *Lexer) buildTokenNFAs() {
 	l.debug.DebugLog("lexer: building NFAs", false)
 
-	// convert token patterns, order matters for precedence
-	keywordNFA := l.thompsonConstruct(KEYWORD_PATTERN.String(), T_KEYWORD)
-	constantNFA := l.thompsonConstruct(CONSTANT_PATTERN.String(), T_CONSTANT)
-	identifierNFA := l.thompsonConstruct(IDENTIFIER_PATTERN.String(), T_IDENTIFIER)
+	// Define all our regex token definitions
+	regexDefs := []TokenRegexDef{
+		{"KEYWORD", KEYWORD_PATTERN_STR, "", T_KEYWORD},
+		{"CONSTANT", CONSTANT_PATTERN_STR, "", T_CONSTANT},
+		{"IDENTIFIER", IDENTIFIER_PATTERN_STR, "", T_IDENTIFIER},
+		{"BOOL", BOOL_PATTERN_STR, "", T_LITERAL},
+		{"NUMBER", NUMBER_PATTERN_STR, "", T_LITERAL},
+		{"STRING", STRING_PATTERN_STR, "", T_STRING_LITERAL},
+		{"CHAR", CHAR_PATTERN_STR, "", T_CHAR_LITERAL},
+		{"ESCAPE", ESCAPE_SEQUENCE_PATTERN_STR, "", T_ESCAPE_SEQUENCE},
+		{"OPERATOR", OPERATOR_PATTERN_STR, "", T_OPERATOR},
+		{"PUNCTUATOR", PUNCTUATOR_PATTERN_STR, "", T_PUNCTUATOR},
+		{"SPECIAL", SPECIAL_PATTERN_STR, "", T_SPECIAL},
+		{"ASM_INSTRUCTION", ASM_INSTRUCTION_STR, "", T_ASM_INSTRUCTION},
+		{"ASM_REGISTER", ASM_REGISTER_STR, "", T_ASM_REGISTER},
+		{"ASM_IMMEDIATE", ASM_IMMEDIATE_STR, "", T_ASM_IMMEDIATE},
+		{"ASM_MEMORY_REF", ASM_MEMORY_REF_STR, "", T_ASM_MEMORY_REF},
+		{"ASM_LABEL", ASM_LABEL_STR, "", T_ASM_LABEL},
+		{"SINGLE_COMMENT", SINGLE_LINE_COMMENT_PATTERN_STR, "", T_SINGLE_LINE_COMMENT},
+		{"MULTI_COMMENT", MULTI_LINE_COMMENT_PATTERN_STR, "", T_MULTI_LINE_COMMENT},
+	}
 
-	// literals and operators
-	boolNFA := l.thompsonConstruct(BOOL_PATTERN.String(), T_LITERAL)
-	numberNFA := l.thompsonConstruct(NUMBER_PATTERN.String(), T_LITERAL)
-	stringNFA := l.thompsonConstruct(STRING_PATTERN.String(), T_STRING_LITERAL)
-	charNFA := l.thompsonConstruct(CHAR_PATTERN.String(), T_CHAR_LITERAL)
-	escapeNFA := l.thompsonConstruct(ESCAPE_SEQUENCE_PATTERN.String(), T_ESCAPE_SEQUENCE)
-
-	operatorNFA := l.thompsonConstruct(OPERATOR_PATTERN.String(), T_OPERATOR)
-	punctuatorNFA := l.thompsonConstruct(PUNCTUATOR_PATTERN.String(), T_PUNCTUATOR)
-	specialNFA := l.thompsonConstruct(SPECIAL_PATTERN.String(), T_SPECIAL)
-
-	// assembly-specific NFAs
-	asmInstructionNFA := l.thompsonConstruct(ASM_INSTRUCTION.String(), T_ASM_INSTRUCTION)
-	asmRegisterNFA := l.thompsonConstruct(ASM_REGISTER.String(), T_ASM_REGISTER)
-	asmImmediateNFA := l.thompsonConstruct(ASM_IMMEDIATE.String(), T_ASM_IMMEDIATE)
-	asmMemoryRefNFA := l.thompsonConstruct(ASM_MEMORY_REF.String(), T_ASM_MEMORY_REF)
-	asmLabelNFA := l.thompsonConstruct(ASM_LABEL.String(), T_ASM_LABEL)
-
-	// comments
-	singleCommentNFA := l.thompsonConstruct(SINGLE_LINE_COMMENT_PATTERN.String(), T_SINGLE_LINE_COMMENT)
-	multiCommentNFA := l.thompsonConstruct(MULTI_LINE_COMMENT_PATTERN.String(), T_MULTI_LINE_COMMENT)
-
-	// store NFAs in priority order for lexing
-	l.tokenNFAs = []*NFA{
-		keywordNFA, constantNFA, identifierNFA,
-		boolNFA, numberNFA, stringNFA, charNFA, escapeNFA,
-		operatorNFA, punctuatorNFA, specialNFA,
-		asmInstructionNFA, asmRegisterNFA, asmImmediateNFA,
-		asmMemoryRefNFA, asmLabelNFA,
-		singleCommentNFA, multiCommentNFA,
+	// Build NFAs for each token
+	l.tokenNFAs = []*NFA{} // reset NFAs
+	for i := range regexDefs {
+		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
+		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
+		nfa.Print(l.debug)
+		l.testNFA(nfa, regexDefs[i].Name, regexDefs[i].Pattern)
+		l.tokenNFAs = append(l.tokenNFAs, nfa)
 	}
 
 	l.debug.DebugLog("lexer: success on NFAs", false)
-}
-
-// thompson's construction
-// using golang's regex engine for pattern matching, could be done from scratch
-// have our own NFA structure but i think writing a regex parser would be too much too soon
-// TODO: more expansive NFA structure handling
-func (l *Lexer) thompsonConstruct(regexPattern string, tokenType TokenType) *NFA {
-	l.debug.DebugLog(fmt.Sprintf("lexer: converting regex pattern to NFA: %s", regexPattern), false)
-
-	compiledRegex, err := regexp.Compile(regexPattern)
-	if err != nil {
-		l.debug.DebugLog(fmt.Sprintf("lexer: failed to compile regex pattern: %s, error: %v", regexPattern, err), true)
-		// return simple NFA
-		return l.buildSimpleNFA(tokenType, false)
-	}
-
-	// create a functional NFA
-	startState := &NFAState{
-		id:                 l.generateStateID(),
-		isAccepting:        false,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-		compiledRegex:      compiledRegex, // store compiled regex
-	}
-
-	endState := &NFAState{
-		id:                 l.generateStateID(),
-		isAccepting:        true,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-		compiledRegex:      nil,
-	}
-
-	nfa := &NFA{
-		start: startState,
-		end:   endState,
-	}
-
-	l.debug.DebugLog(fmt.Sprintf("lexer: successfully built NFA for pattern: %s", regexPattern), false)
-	return nfa
-}
-
-// build a NFA for a token that doesn't have a regex pattern
-func (l *Lexer) buildSimpleNFA(tokenType TokenType, isAccepting bool) *NFA {
-	start := &NFAState{
-		id:                 l.generateStateID(),
-		isAccepting:        isAccepting,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	end := &NFAState{
-		id:                 l.generateStateID(),
-		isAccepting:        isAccepting,
-		tokenType:          tokenType,
-		transitions:        make(map[rune][]*NFAState),
-		epsilonTransitions: []*NFAState{},
-	}
-
-	// transition from start to end on any character
-	start.transitions['\000'] = []*NFAState{end} // null character
-
-	return &NFA{start: start, end: end}
-}
-
-var stateIDCounter int = 0
-
-func (l *Lexer) generateStateID() int {
-	stateIDCounter++
-	return stateIDCounter
 }
 
 // function to reset a lexer
@@ -270,4 +174,8 @@ func (l *Lexer) GetTokenStream() []Token {
 // function to set the content of the lexer
 func (l *Lexer) SetContent(content map[string]string) {
 	l.content = content
+}
+
+func (l *Lexer) testNFA(nfa *NFA, name, pattern string) {
+	// TODO: Not sure if we need this testing functionality if converting to DFA but wrote logic for it anyways
 }

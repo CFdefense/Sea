@@ -1,0 +1,2 @@
+// Const definition
+const PI = 3.14;
