@@ -312,9 +312,23 @@ func thompsonConstruct(postfix string, tokenType TokenType) *NFA {
 				classContent := tok[1 : len(tok)-1] // Remove brackets
 				if strings.HasPrefix(classContent, "^") {
 					// Negated character class
-					// For simplicity, create a transition for any character not in the class
-					// This is a simplified implementation
-					add_transition(start, "any", end)
+					// Parse the characters in the class (excluding the ^)
+					chars := parseCharacterClass(classContent[1:])
+					// Create transitions for all characters NOT in the class
+					// For simplicity, we'll create transitions for common ASCII characters
+					for i := 0; i < 128; i++ {
+						char := string(byte(i))
+						found := false
+						for _, classChar := range chars {
+							if char == classChar {
+								found = true
+								break
+							}
+						}
+						if !found {
+							add_transition(start, char, end)
+						}
+					}
 				} else {
 					// Regular character class
 					// Parse character ranges and individual characters
@@ -405,12 +419,30 @@ func parseCharacterClass(classContent string) []string {
 	var chars []string
 	i := 0
 	for i < len(classContent) {
+		// Handle escape sequences
+		if classContent[i] == '\\' && i+1 < len(classContent) {
+			escapedChar := classContent[i+1]
+			chars = append(chars, string(escapedChar))
+			i += 2
+			continue
+		}
+
+		// Handle character ranges
 		if i+2 < len(classContent) && classContent[i+1] == '-' {
-			// Character range
 			start := classContent[i]
 			end := classContent[i+2]
-			for c := start; c <= end; c++ {
-				chars = append(chars, string(c))
+
+			// Validate range (start <= end)
+			if start > end {
+				// Invalid range, treat as literal characters
+				chars = append(chars, string(start))
+				chars = append(chars, "-")
+				chars = append(chars, string(end))
+			} else {
+				// Valid range
+				for c := start; c <= end; c++ {
+					chars = append(chars, string(c))
+				}
 			}
 			i += 3
 		} else {
