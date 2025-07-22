@@ -145,6 +145,14 @@ func (l *Lexer) buildTokenNFAs() {
 	l.tokenNFAs = []*NFA{} // reset NFAs
 	for i := range regexDefs {
 		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
+		l.debug.DebugLog(fmt.Sprintf("Pattern: %s -> Postfix: %s", regexDefs[i].Pattern, regexDefs[i].Postfix), false)
+		if regexDefs[i].Name == "STRING" {
+			tokens := tokenizeRegex(regexDefs[i].Pattern)
+			l.debug.DebugLog(fmt.Sprintf("STRING pattern tokens: %v", tokens), false)
+			for j, t := range tokens {
+				l.debug.DebugLog(fmt.Sprintf("  Token %d: %s (%s)", j, t.Value, t.Type), false)
+			}
+		}
 		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
 		nfa.Print(l.debug)
 		l.testNFA(nfa, regexDefs[i].Name, regexDefs[i].Pattern)
@@ -163,7 +171,6 @@ func (l *Lexer) ResetLexer() {
 	l.row = 1
 	l.col = 1
 	l.tokenNFAs = []*NFA{} // reset NFAs
-	stateIDCounter = 0     // reset state counter for clean IDs
 }
 
 // function to get the token stream
