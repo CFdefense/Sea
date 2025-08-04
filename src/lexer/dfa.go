@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 )
 
 type DFAState struct {
@@ -29,11 +28,6 @@ var generateDFAStateID = func() func() int {
 	}
 }()
 
-// i think this is why it was hanging, it was trying to make massive dfas
-// this is temporary, maybe christian has a solution :)
-const MAX_DFA_STATES = 1000
-const MAX_CONVERSION_TIME_MS = 5000
-
 // convert nfa to dfa using subset construction
 func ConvertNFAtoDFA(nfa *NFA) *DFA {
 	alphabet := getAlphabet(nfa)
@@ -53,20 +47,7 @@ func ConvertNFAtoDFA(nfa *NFA) *DFA {
 	// queue of states to process
 	queue := []*DFAState{initialDFAState}
 
-	// track start time for timeout (again, temporary)
-	startTime := time.Now()
-
 	for len(queue) > 0 {
-		if len(dfa.states) > MAX_DFA_STATES {
-			fmt.Printf("warn: DFA conversion stopped due to state explosion (> %d states)\n", MAX_DFA_STATES)
-			return createSimplifiedDFA(nfa)
-		}
-		
-		if time.Since(startTime).Milliseconds() > MAX_CONVERSION_TIME_MS {
-			fmt.Printf("warn: DFA conversion timeout after %d ms\n", MAX_CONVERSION_TIME_MS)
-			return createSimplifiedDFA(nfa)
-		}
-
 		currentState := queue[0]
 		queue = queue[1:] // remove first element
 
@@ -101,36 +82,6 @@ func ConvertNFAtoDFA(nfa *NFA) *DFA {
 	}
 
 	return dfa
-}
-
-// fallback dfa, again temporary, because i was struggling
-func createSimplifiedDFA(nfa *NFA) *DFA {
-	start := &DFAState{
-		id:          generateDFAStateID(),
-		isAccepting: nfa.start.isAccepting,
-		tokenType:   nfa.start.tokenType,
-		transitions: make(map[string]*DFAState),
-		nfaStates:   []*NFAState{nfa.start},
-	}
-	
-	accept := &DFAState{
-		id:          generateDFAStateID(),
-		isAccepting: true,
-		tokenType:   nfa.end.tokenType,
-		transitions: make(map[string]*DFAState),
-		nfaStates:   []*NFAState{nfa.end},
-	}
-	
-	alphabet := getAlphabet(nfa)
-	for symbol := range alphabet {
-		start.transitions[symbol] = accept
-	}
-	
-	return &DFA{
-		start:    start,
-		states:   []*DFAState{start, accept},
-		alphabet: alphabet,
-	}
 }
 
 func createDFAState(nfaStates []*NFAState) *DFAState {
@@ -198,15 +149,36 @@ func getAlphabet(nfa *NFA) map[string]bool {
 	}
 
 	collectSymbols(nfa.start)
-	
-	if len(alphabet) > 128 {
-		fmt.Printf("warning: alphabet size %d is too large, limiting to ASCII range\n", len(alphabet))
-		alphabet = make(map[string]bool)
-		for i := 0; i < 128; i++ {
-			alphabet[string(byte(i))] = true
+
+	// If alphabet is too large, use a more targeted approach
+	if len(alphabet) > 100 {
+		// Create a minimal alphabet with only commonly used characters
+		limitedAlphabet := make(map[string]bool)
+
+		// Add alphanumeric characters
+		for c := 'a'; c <= 'z'; c++ {
+			limitedAlphabet[string(c)] = true
 		}
+		for c := 'A'; c <= 'Z'; c++ {
+			limitedAlphabet[string(c)] = true
+		}
+		for c := '0'; c <= '9'; c++ {
+			limitedAlphabet[string(c)] = true
+		}
+
+		// Add common punctuation and operators
+		commonChars := []string{
+			"_", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", "^",
+			"(", ")", "[", "]", "{", "}", ";", ",", ".", ":", "?", "@", "#",
+			"$", "~", "`", " ", "\t", "\n", "\r", "\"", "'", "\\",
+		}
+
+		for _, char := range commonChars {
+			limitedAlphabet[char] = true
+		}
+		return limitedAlphabet
 	}
-	
+
 	return alphabet
 }
 

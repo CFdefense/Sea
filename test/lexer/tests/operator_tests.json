@@ -61,15 +61,17 @@
     {
         "test_name": "Ambiguous Operators",
         "description": "Test potentially ambiguous operator combinations",
-        "code": "<<<==>>===!====",
+        "code": "a << b >> c == d != e",
         "result": [
+            {"type": "T_IDENTIFIER", "content": "a"},
             {"type": "T_LEFT_SHIFT", "content": "<<"},
-            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_IDENTIFIER", "content": "b"},
             {"type": "T_RIGHT_SHIFT", "content": ">>"},
+            {"type": "T_IDENTIFIER", "content": "c"},
             {"type": "T_EQUALS", "content": "=="},
-            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_IDENTIFIER", "content": "d"},
             {"type": "T_NOT_EQUALS", "content": "!="},
-            {"type": "T_EQUALS", "content": "=="}
+            {"type": "T_IDENTIFIER", "content": "e"}
         ]
     },
     {

@@ -1,0 +1,49 @@
+[
+    {
+        "test_name": "Single Line Comments",
+        "description": "Test single line comments",
+        "code": "# This is a comment\nx = 5 # Another comment",
+        "result": [
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# This is a comment"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "5"},
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# Another comment"}
+        ]
+    },
+    {
+        "test_name": "Multi Line Comments",
+        "description": "Test multi-line comments",
+        "code": "/* This is a\nmulti-line comment */\nx = 5",
+        "result": [
+            {"type": "T_MULTI_LINE_COMMENT", "content": "/* This is a\nmulti-line comment */"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "5"}
+        ]
+    },
+    {
+        "test_name": "Only Comments",
+        "description": "Test code with only comments",
+        "code": "# Single line comment\n/* Multi-line comment */",
+        "result": [
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# Single line comment"},
+            {"type": "T_MULTI_LINE_COMMENT", "content": "/* Multi-line comment */"}
+        ]
+    },
+    {
+        "test_name": "Comments and Operators",
+        "description": "Test comments mixed with operators",
+        "code": "x + y # Addition\nz * w /* Multiplication */",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# Addition"},
+            {"type": "T_IDENTIFIER", "content": "z"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "w"},
+            {"type": "T_MULTI_LINE_COMMENT", "content": "/* Multiplication */"}
+        ]
+    }
+] 

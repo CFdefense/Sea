@@ -60,14 +60,12 @@ func tokenizeRegex(pattern string) []RegexToken {
 			continue
 		}
 
-		switch pattern[i] {
-		case '[':
-			// Handle character class
+		// Handle character class with quantifier (e.g., [^\n]*, [\s\S]*?)
+		if pattern[i] == '[' {
 			j := i + 1
 			var classContent strings.Builder
 			for j < len(pattern) && pattern[j] != ']' {
 				if pattern[j] == '\\' && j+1 < len(pattern) {
-					// Always treat backslash + any character as a single unit inside class
 					classContent.WriteString(pattern[j : j+2])
 					j += 2
 				} else {
@@ -76,14 +74,33 @@ func tokenizeRegex(pattern string) []RegexToken {
 				}
 			}
 			if j < len(pattern) {
-				tok := RegexToken{"[" + classContent.String() + "]", "class"}
-				tokens = append(tokens, tok)
-				i = j + 1
+				class := "[" + classContent.String() + "]"
+				k := j + 1
+				// Check for quantifier after class
+				if k < len(pattern) && (pattern[k] == '*' || pattern[k] == '+' || pattern[k] == '?') {
+					quant := string(pattern[k])
+					k++
+					// Non-greedy quantifier (e.g., *?)
+					if k < len(pattern) && pattern[k] == '?' {
+						quant += "?"
+						k++
+					}
+					tokens = append(tokens, RegexToken{class + quant, "class_quant"})
+					i = k
+					continue
+				} else {
+					tokens = append(tokens, RegexToken{class, "class"})
+					i = j + 1
+					continue
+				}
 			} else {
-				tok := RegexToken{string(pattern[i]), "literal"}
-				tokens = append(tokens, tok)
+				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
 				i++
+				continue
 			}
+		}
+
+		switch pattern[i] {
 		case '(', ')', '*', '+', '?', '|', '.':
 			tok := RegexToken{string(pattern[i]), "operator"}
 			tokens = append(tokens, tok)
@@ -102,7 +119,6 @@ func tokenizeRegex(pattern string) []RegexToken {
 				tokens = append(tokens, RegexToken{quantifier.String(), "operator"})
 				i = j + 1
 			} else {
-				// unmatched brace implies literal
 				tokens = append(tokens, RegexToken{string(pattern[i]), "literal"})
 				i++
 			}
@@ -163,15 +179,14 @@ func simplifyRegex(pattern string) string {
 	// Handle common problematic patterns
 	simplified := pattern
 
-	// Replace \b (word boundary) with a simpler pattern at the end
-	if strings.HasSuffix(simplified, "\\b") {
-		simplified = strings.TrimSuffix(simplified, "\\b")
+	// Do not strip ^ anchor for comment patterns
+	if pattern == SINGLE_LINE_COMMENT_PATTERN_STR || pattern == MULTI_LINE_COMMENT_PATTERN_STR {
+		return simplified
 	}
 
-	// Replace anchors at the beginning for simpler processing
-	if strings.HasPrefix(simplified, "^") {
-		simplified = strings.TrimPrefix(simplified, "^")
-	}
+	// Replace \b and ^ (word boundary) with a simpler pattern at the end
+	simplified = strings.TrimSuffix(simplified, "\\b")
+	simplified = strings.TrimPrefix(simplified, "^")
 
 	// For very complex alternation patterns, use a fallback
 	if strings.Count(simplified, "|") > 10 {
@@ -749,22 +764,15 @@ func (nfa *NFA) Simulate(input string) bool {
 	// Start with epsilon closure of start state
 	currentStates := nfa.epsilonClosure([]*NFAState{nfa.start})
 
-	// Debug: show initial states
-	fmt.Printf("Starting simulation with input: %q\n", input)
-	fmt.Printf("Initial states: %v\n", getStateIDs(currentStates))
-
 	// Handle start anchor (^), check at position 0
 	nextStates := []*NFAState{}
 	for _, state := range currentStates {
 		if transitions, exists := state.transitions["start_anchor"]; exists {
-			fmt.Printf("  State %d has start_anchor transition to states: %v\n",
-				state.id, getStateIDs(transitions))
 			nextStates = append(nextStates, transitions...)
 		}
 	}
 	if len(nextStates) > 0 {
 		currentStates = nfa.epsilonClosure(nextStates)
-		fmt.Printf("After start anchor and epsilon closure: %v\n", getStateIDs(currentStates))
 	}
 
 	// Check for word boundary at start of input
@@ -772,14 +780,11 @@ func (nfa *NFA) Simulate(input string) bool {
 		nextStates = []*NFAState{}
 		for _, state := range currentStates {
 			if transitions, exists := state.transitions["word_boundary"]; exists {
-				fmt.Printf("  State %d has word_boundary transition at start to states: %v\n",
-					state.id, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
 		}
 		if len(nextStates) > 0 {
 			currentStates = nfa.epsilonClosure(nextStates)
-			fmt.Printf("After start word boundary and epsilon closure: %v\n", getStateIDs(currentStates))
 		}
 	}
 
@@ -787,14 +792,10 @@ func (nfa *NFA) Simulate(input string) bool {
 		char := string(input[i])
 		nextStates = []*NFAState{}
 
-		fmt.Printf("Processing character '%s' at position %d\n", char, i)
-
 		// Check for word boundary at current position before consuming character
 		if isAtWordBoundary(input, i) {
 			for _, state := range currentStates {
 				if transitions, exists := state.transitions["word_boundary"]; exists {
-					fmt.Printf("  State %d has word_boundary transition at position %d to states: %v\n",
-						state.id, i, getStateIDs(transitions))
 					nextStates = append(nextStates, transitions...)
 				}
 			}
@@ -803,25 +804,19 @@ func (nfa *NFA) Simulate(input string) bool {
 		// For each current state, find all states reachable on this character
 		for _, state := range currentStates {
 			if transitions, exists := state.transitions[char]; exists {
-				fmt.Printf("  State %d has transition on '%s' to states: %v\n",
-					state.id, char, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
 			// Also check for "any" transitions (dot operator)
 			if transitions, exists := state.transitions["any"]; exists {
-				fmt.Printf("  State %d has 'any' transition to states: %v\n",
-					state.id, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
 		}
 
 		// Take epsilon closure of next states
 		currentStates = nfa.epsilonClosure(nextStates)
-		fmt.Printf("After epsilon closure: %v\n", getStateIDs(currentStates))
 
 		// If no states, reject
 		if len(currentStates) == 0 {
-			fmt.Printf("No states remaining - REJECTING\n")
 			return false
 		}
 	}
@@ -831,14 +826,11 @@ func (nfa *NFA) Simulate(input string) bool {
 		nextStates = []*NFAState{}
 		for _, state := range currentStates {
 			if transitions, exists := state.transitions["word_boundary"]; exists {
-				fmt.Printf("  State %d has word_boundary transition at end to states: %v\n",
-					state.id, getStateIDs(transitions))
 				nextStates = append(nextStates, transitions...)
 			}
 		}
 		if len(nextStates) > 0 {
 			currentStates = nfa.epsilonClosure(nextStates)
-			fmt.Printf("After end word boundary and epsilon closure: %v\n", getStateIDs(currentStates))
 		}
 	}
 
@@ -846,36 +838,21 @@ func (nfa *NFA) Simulate(input string) bool {
 	nextStates = []*NFAState{} // Reset nextStates
 	for _, state := range currentStates {
 		if transitions, exists := state.transitions["end_anchor"]; exists {
-			fmt.Printf("  State %d has end_anchor transition to states: %v\n",
-				state.id, getStateIDs(transitions))
 			nextStates = append(nextStates, transitions...)
 		}
 	}
 	if len(nextStates) > 0 {
 		currentStates = nfa.epsilonClosure(nextStates)
-		fmt.Printf("After end anchor and epsilon closure: %v\n", getStateIDs(currentStates))
 	}
 
 	// Check if any accepting state is in current states
 	for _, state := range currentStates {
 		if state.isAccepting {
-			fmt.Printf("Found accepting state %d (type: %s) - ACCEPTING\n",
-				state.id, state.tokenType.String())
 			return true
 		}
 	}
 
-	fmt.Printf("No accepting states found - REJECTING\n")
 	return false
-}
-
-// Helper function to get state IDs for debugging
-func getStateIDs(states []*NFAState) []int {
-	ids := make([]int, len(states))
-	for i, state := range states {
-		ids[i] = state.id
-	}
-	return ids
 }
 
 // epsilonClosure computes the epsilon closure of a set of states

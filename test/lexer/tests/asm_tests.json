@@ -1,0 +1,323 @@
+[
+    {
+        "test_name": "Basic ASM Block",
+        "description": "Test basic inline assembly block",
+        "code": "asm { mov %rax, %rbx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Multiple Instructions",
+        "description": "Test multiple assembly instructions",
+        "code": "asm { push %rbp mov %rsp, %rbp pop %rbp }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "push"},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%rsp"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_IDENTIFIER", "content": "pop"},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Immediate Values",
+        "description": "Test assembly with immediate values",
+        "code": "asm { mov $42, %rax mov $0xFF, %rbx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "$42"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "$0xFF"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Memory References",
+        "description": "Test assembly with memory references",
+        "code": "asm { mov (%rax), %rbx mov 8(%rbp), %rcx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "8"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rcx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Labels",
+        "description": "Test assembly with labels",
+        "code": "asm { loop_start: cmp %rax, %rbx je loop_end }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "loop_start"},
+            {"type": "T_COLON", "content": ":"},
+            {"type": "T_IDENTIFIER", "content": "cmp"},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_IDENTIFIER", "content": "je"},
+            {"type": "T_IDENTIFIER", "content": "loop_end"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Complex Instructions",
+        "description": "Test complex assembly instructions",
+        "code": "asm { addq $16, %rsp subq $8, %rbp callq function_name }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "addq"},
+            {"type": "T_IDENTIFIER", "content": "$16"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rsp"},
+            {"type": "T_IDENTIFIER", "content": "subq"},
+            {"type": "T_IDENTIFIER", "content": "$8"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_IDENTIFIER", "content": "callq"},
+            {"type": "T_IDENTIFIER", "content": "function_name"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Different Register Types",
+        "description": "Test various register types",
+        "code": "asm { mov %eax, %ebx mov %r8, %r9 mov %xmm0, %xmm1 }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%ebx"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%r8"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%r9"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%xmm0"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%xmm1"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Comments",
+        "description": "Test assembly with comments",
+        "code": "asm { mov %rax, %rbx # save rax push %rcx /* save rcx */ }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# save rax"},
+            {"type": "T_IDENTIFIER", "content": "push"},
+            {"type": "T_IDENTIFIER", "content": "%rcx"},
+            {"type": "T_MULTI_LINE_COMMENT", "content": "/* save rcx */"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Function Calls",
+        "description": "Test assembly with function calls",
+        "code": "asm { call printf callq malloc }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "call"},
+            {"type": "T_IDENTIFIER", "content": "printf"},
+            {"type": "T_IDENTIFIER", "content": "callq"},
+            {"type": "T_IDENTIFIER", "content": "malloc"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Conditional Instructions",
+        "description": "Test assembly with conditional instructions",
+        "code": "asm { cmpl $0, %eax je zero_case jne non_zero_case }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "cmpl"},
+            {"type": "T_IDENTIFIER", "content": "$0"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_IDENTIFIER", "content": "je"},
+            {"type": "T_IDENTIFIER", "content": "zero_case"},
+            {"type": "T_IDENTIFIER", "content": "jne"},
+            {"type": "T_IDENTIFIER", "content": "non_zero_case"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Stack Operations",
+        "description": "Test assembly with stack operations",
+        "code": "asm { pushq %rbp popq %rbp pushl %eax popl %eax }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "pushq"},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_IDENTIFIER", "content": "popq"},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_IDENTIFIER", "content": "pushl"},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_IDENTIFIER", "content": "popl"},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Bit Operations",
+        "description": "Test assembly with bit operations",
+        "code": "asm { andl $0xFF, %eax orl $0x100, %ebx xorl %ecx, %edx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "andl"},
+            {"type": "T_IDENTIFIER", "content": "$0xFF"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_IDENTIFIER", "content": "orl"},
+            {"type": "T_IDENTIFIER", "content": "$0x100"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%ebx"},
+            {"type": "T_IDENTIFIER", "content": "xorl"},
+            {"type": "T_IDENTIFIER", "content": "%ecx"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%edx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Shift Operations",
+        "description": "Test assembly with shift operations",
+        "code": "asm { shll $2, %eax shrl $1, %ebx sarl $3, %ecx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "shll"},
+            {"type": "T_IDENTIFIER", "content": "$2"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%eax"},
+            {"type": "T_IDENTIFIER", "content": "shrl"},
+            {"type": "T_IDENTIFIER", "content": "$1"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%ebx"},
+            {"type": "T_IDENTIFIER", "content": "sarl"},
+            {"type": "T_IDENTIFIER", "content": "$3"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%ecx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Complex Memory Addressing",
+        "description": "Test assembly with complex memory addressing",
+        "code": "asm { mov -8(%rbp), %rax mov 16(%rsp, %rdi, 8), %rbx }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "-8"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rbp"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_IDENTIFIER", "content": "mov"},
+            {"type": "T_IDENTIFIER", "content": "16"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rsp"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rdi"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "8"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with Floating Point",
+        "description": "Test assembly with floating point instructions",
+        "code": "asm { fldl (%rax) fstpl (%rbx) faddp %st(1), %st }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "fldl"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "fstpl"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rbx"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "faddp"},
+            {"type": "T_IDENTIFIER", "content": "%st(1)"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%st"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "ASM with SIMD Instructions",
+        "description": "Test assembly with SIMD instructions",
+        "code": "asm { movdqu (%rax), %xmm0 paddd %xmm1, %xmm0 pshufd $0, %xmm0, %xmm1 }",
+        "result": [
+            {"type": "T_ASM", "content": "asm"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "movdqu"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "%rax"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%xmm0"},
+            {"type": "T_IDENTIFIER", "content": "paddd"},
+            {"type": "T_IDENTIFIER", "content": "%xmm1"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%xmm0"},
+            {"type": "T_IDENTIFIER", "content": "pshufd"},
+            {"type": "T_IDENTIFIER", "content": "$0"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%xmm0"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "%xmm1"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    }
+] 

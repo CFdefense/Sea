@@ -90,22 +90,10 @@
     {
         "test_name": "Comment-Like Operators",
         "description": "Test operators that might be confused with comments",
-        "code": "/ // /// //// * ** *** ****",
+        "code": "/ # ## ### #### * ** *** ****",
         "result": [
             {"type": "T_DIVIDE", "content": "/"},
-            {"type": "T_INT_DIVIDE", "content": "//"},
-            {"type": "T_INT_DIVIDE", "content": "//"},
-            {"type": "T_DIVIDE", "content": "/"},
-            {"type": "T_INT_DIVIDE", "content": "//"},
-            {"type": "T_INT_DIVIDE", "content": "//"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"},
-            {"type": "T_MULTIPLY", "content": "*"}
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# ## ### #### * ** *** ****"}
         ]
     },
     {

@@ -30,6 +30,7 @@ type TestResult struct {
 	Result   bool
 	Expected []TokenResult
 	Actual   []lexer.Token
+	Error    string // Add error field for better debugging
 }
 
 // function to iterate over all lexer test cases
@@ -52,11 +53,11 @@ func RunLexerTests(debug bool) []TestResult {
 			tests, err := process_json_file(fullPath)
 			if err != nil {
 				log.Printf("Error processing %s: %v", fullPath, err)
+				continue
 			}
 
 			// execute tests and add results to test results
 			for _, test := range tests {
-
 				// reset lexer in between uses
 				l.ResetLexer()
 
@@ -69,7 +70,7 @@ func RunLexerTests(debug bool) []TestResult {
 				// get results and compare to expected
 				token_stream_result := l.GetTokenStream()
 
-				result := compareTokens(token_stream_result, test.ExpectedResult)
+				result, errorMsg := compareTokens(token_stream_result, test.ExpectedResult)
 
 				// Create a TestResult instance
 				test_result := TestResult{
@@ -77,6 +78,7 @@ func RunLexerTests(debug bool) []TestResult {
 					Result:   result,
 					Expected: test.ExpectedResult,
 					Actual:   token_stream_result,
+					Error:    errorMsg,
 				}
 
 				// add test result to test results
@@ -89,14 +91,14 @@ func RunLexerTests(debug bool) []TestResult {
 }
 
 // compareTokens compares a slice of tokens with a slice of expected token results
-func compareTokens(actual []lexer.Token, expected []TokenResult) bool {
+// Returns (bool, string) where bool is success and string is error message
+func compareTokens(actual []lexer.Token, expected []TokenResult) (bool, string) {
 	// compare token stream lengths
 	if len(actual) != len(expected) {
-		return false
+		return false, fmt.Sprintf("Token count mismatch: expected %d, got %d", len(expected), len(actual))
 	}
 
 	// Compare token content and type
-	allMatch := true
 	for i, token := range actual {
 		actualContent := token.GetTokenContent()
 		actualType := token.GetTokenType().String()
@@ -107,11 +109,12 @@ func compareTokens(actual []lexer.Token, expected []TokenResult) bool {
 		typeMatch := actualType == expectedType
 
 		if !contentMatch || !typeMatch {
-			allMatch = false
+			return false, fmt.Sprintf("Token %d mismatch: expected {type: %s, content: %s}, got {type: %s, content: %s}",
+				i, expectedType, expectedContent, actualType, actualContent)
 		}
 	}
 
-	return allMatch
+	return true, ""
 }
 
 // function to unmarshal json file into a slice of test cases

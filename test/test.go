@@ -11,18 +11,44 @@ func RunTests(debug bool) {
 	lexer_tests := lexer_test.RunLexerTests(debug)
 
 	fmt.Println("Lexer Tests:")
-	fmt.Println("--------------------------------")
+	fmt.Println("==========================================")
+
+	passed := 0
+	failed := 0
+
 	for _, test := range lexer_tests {
 		if test.Result {
-			fmt.Println(test.TestCase.TestName, "PASSED")
+			fmt.Printf("%s PASSED\n", test.TestCase.TestName)
+			passed++
 		} else {
-			fmt.Println(test.TestCase.TestName, "FAILED")
-			fmt.Println("Expected:", test.Expected)
-			fmt.Println("Actual:")
-			for _, token := range test.Actual {
-				fmt.Printf("  {type: %s, content: %s}\n", token.GetTokenType().String(), token.GetTokenContent())
+			fmt.Printf("%s FAILED\n", test.TestCase.TestName)
+			fmt.Printf("   Description: %s\n", test.TestCase.TestDescription)
+			fmt.Printf("   Input: %s\n", test.TestCase.TestContent)
+			fmt.Printf("   Error: %s\n", test.Error)
+			fmt.Printf("   Expected: %d tokens\n", len(test.Expected))
+			fmt.Printf("   Actual: %d tokens\n", len(test.Actual))
+
+			// Show first few tokens for debugging
+			if len(test.Actual) > 0 {
+				fmt.Printf("   First few actual tokens:\n")
+				for i, token := range test.Actual {
+					if i >= 5 { // Limit to first 5 tokens
+						fmt.Printf("     ... and %d more\n", len(test.Actual)-5)
+						break
+					}
+					fmt.Printf("     %d: {type: %s, content: %s}\n",
+						i, token.GetTokenType().String(), token.GetTokenContent())
+				}
 			}
+			failed++
 		}
-		fmt.Print("--------------------------------\n")
+		fmt.Print("------------------------------------------\n")
+	}
+
+	fmt.Printf("\nTest Summary: %d passed, %d failed\n", passed, failed)
+	if failed > 0 {
+		fmt.Println("Some tests failed - check the lexer implementation")
+	} else {
+		fmt.Println("All tests passed!")
 	}
 }

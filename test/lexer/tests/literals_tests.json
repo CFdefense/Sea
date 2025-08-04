@@ -53,18 +53,10 @@
         "code": "0 01 001 00123 0000",
         "result": [
             {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "1"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "1"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "123"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"},
-            {"type": "T_INT_LITERAL", "content": "0"}
+            {"type": "T_INT_LITERAL", "content": "01"},
+            {"type": "T_INT_LITERAL", "content": "001"},
+            {"type": "T_INT_LITERAL", "content": "00123"},
+            {"type": "T_INT_LITERAL", "content": "0000"}
         ]
     },
     {

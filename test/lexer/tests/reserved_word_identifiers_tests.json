@@ -1,0 +1,266 @@
+[
+    {
+        "test_name": "Basic Reserved Word Identifiers",
+        "description": "Test basic identifiers containing reserved words",
+        "code": "matched ifey whiley enumy structy",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "matched"},
+            {"type": "T_IDENTIFIER", "content": "ifey"},
+            {"type": "T_IDENTIFIER", "content": "whiley"},
+            {"type": "T_IDENTIFIER", "content": "enumy"},
+            {"type": "T_IDENTIFIER", "content": "structy"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words with Underscores",
+        "description": "Test identifiers with reserved words and underscores",
+        "code": "if_statement while_loop match_case enum_type struct_field",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "if_statement"},
+            {"type": "T_IDENTIFIER", "content": "while_loop"},
+            {"type": "T_IDENTIFIER", "content": "match_case"},
+            {"type": "T_IDENTIFIER", "content": "enum_type"},
+            {"type": "T_IDENTIFIER", "content": "struct_field"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words with Numbers",
+        "description": "Test identifiers with reserved words and numbers",
+        "code": "if1 while2 match3 enum4 struct5",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "if1"},
+            {"type": "T_IDENTIFIER", "content": "while2"},
+            {"type": "T_IDENTIFIER", "content": "match3"},
+            {"type": "T_IDENTIFIER", "content": "enum4"},
+            {"type": "T_IDENTIFIER", "content": "struct5"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words at End",
+        "description": "Test identifiers ending with reserved words",
+        "code": "myif mywhile mymatch myenum mystruct",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "myif"},
+            {"type": "T_IDENTIFIER", "content": "mywhile"},
+            {"type": "T_IDENTIFIER", "content": "mymatch"},
+            {"type": "T_IDENTIFIER", "content": "myenum"},
+            {"type": "T_IDENTIFIER", "content": "mystruct"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Middle",
+        "description": "Test identifiers with reserved words in the middle",
+        "code": "testif testwhile testmatch testenum teststruct",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "testif"},
+            {"type": "T_IDENTIFIER", "content": "testwhile"},
+            {"type": "T_IDENTIFIER", "content": "testmatch"},
+            {"type": "T_IDENTIFIER", "content": "testenum"},
+            {"type": "T_IDENTIFIER", "content": "teststruct"}
+        ]
+    },
+    {
+        "test_name": "Type Keywords in Identifiers",
+        "description": "Test identifiers containing type keywords",
+        "code": "myint mybool myvoid myfunction mymut",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "myint"},
+            {"type": "T_IDENTIFIER", "content": "mybool"},
+            {"type": "T_IDENTIFIER", "content": "myvoid"},
+            {"type": "T_IDENTIFIER", "content": "myfunction"},
+            {"type": "T_IDENTIFIER", "content": "mymut"}
+        ]
+    },
+    {
+        "test_name": "Control Flow Keywords in Identifiers",
+        "description": "Test identifiers containing control flow keywords",
+        "code": "myif myelse mywhile mydo myfor myreturn mybreak mycontinue",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "myif"},
+            {"type": "T_IDENTIFIER", "content": "myelse"},
+            {"type": "T_IDENTIFIER", "content": "mywhile"},
+            {"type": "T_IDENTIFIER", "content": "mydo"},
+            {"type": "T_IDENTIFIER", "content": "myfor"},
+            {"type": "T_IDENTIFIER", "content": "myreturn"},
+            {"type": "T_IDENTIFIER", "content": "mybreak"},
+            {"type": "T_IDENTIFIER", "content": "mycontinue"}
+        ]
+    },
+    {
+        "test_name": "Multiple Reserved Words",
+        "description": "Test identifiers with multiple reserved words",
+        "code": "ifwhile ifmatch ifenum ifstruct whilematch whileenum",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "ifwhile"},
+            {"type": "T_IDENTIFIER", "content": "ifmatch"},
+            {"type": "T_IDENTIFIER", "content": "ifenum"},
+            {"type": "T_IDENTIFIER", "content": "ifstruct"},
+            {"type": "T_IDENTIFIER", "content": "whilematch"},
+            {"type": "T_IDENTIFIER", "content": "whileenum"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words with Mixed Case",
+        "description": "Test identifiers with mixed case reserved words",
+        "code": "IfStatement WhileLoop MatchCase EnumType StructField",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "IfStatement"},
+            {"type": "T_IDENTIFIER", "content": "WhileLoop"},
+            {"type": "T_IDENTIFIER", "content": "MatchCase"},
+            {"type": "T_IDENTIFIER", "content": "EnumType"},
+            {"type": "T_IDENTIFIER", "content": "StructField"}
+        ]
+    },
+    {
+        "test_name": "Long Reserved Word Identifiers",
+        "description": "Test long identifiers with reserved words",
+        "code": "very_long_if_statement_name very_long_while_loop_identifier",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "very_long_if_statement_name"},
+            {"type": "T_IDENTIFIER", "content": "very_long_while_loop_identifier"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words with Special Characters",
+        "description": "Test identifiers with reserved words and special characters",
+        "code": "if_test while_test match_test enum_test struct_test",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "if_test"},
+            {"type": "T_IDENTIFIER", "content": "while_test"},
+            {"type": "T_IDENTIFIER", "content": "match_test"},
+            {"type": "T_IDENTIFIER", "content": "enum_test"},
+            {"type": "T_IDENTIFIER", "content": "struct_test"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Function Names",
+        "description": "Test function names containing reserved words",
+        "code": "process_if_data handle_while_loop parse_match_statement",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "process_if_data"},
+            {"type": "T_IDENTIFIER", "content": "handle_while_loop"},
+            {"type": "T_IDENTIFIER", "content": "parse_match_statement"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Variable Names",
+        "description": "Test variable names containing reserved words",
+        "code": "user_if_count system_while_flag data_match_result",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "user_if_count"},
+            {"type": "T_IDENTIFIER", "content": "system_while_flag"},
+            {"type": "T_IDENTIFIER", "content": "data_match_result"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Type Names",
+        "description": "Test type names containing reserved words",
+        "code": "IfHandler WhileProcessor MatchParser EnumManager",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "IfHandler"},
+            {"type": "T_IDENTIFIER", "content": "WhileProcessor"},
+            {"type": "T_IDENTIFIER", "content": "MatchParser"},
+            {"type": "T_IDENTIFIER", "content": "EnumManager"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words with Numbers and Underscores",
+        "description": "Test complex identifiers with reserved words",
+        "code": "if_handler_1 while_processor_2 match_parser_3 enum_manager_4",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "if_handler_1"},
+            {"type": "T_IDENTIFIER", "content": "while_processor_2"},
+            {"type": "T_IDENTIFIER", "content": "match_parser_3"},
+            {"type": "T_IDENTIFIER", "content": "enum_manager_4"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Constants",
+        "description": "Test constant names containing reserved words",
+        "code": "MAX_IF_COUNT MAX_WHILE_ITERATIONS MAX_MATCH_CASES",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "MAX_IF_COUNT"},
+            {"type": "T_IDENTIFIER", "content": "MAX_WHILE_ITERATIONS"},
+            {"type": "T_IDENTIFIER", "content": "MAX_MATCH_CASES"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Mixed Context",
+        "description": "Test reserved word identifiers in mixed context with actual keywords",
+        "code": "if matched == true while whiley < 10 match match_case => {}",
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_IDENTIFIER", "content": "matched"},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_BOOL_LITERAL", "content": "true"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_IDENTIFIER", "content": "whiley"},
+            {"type": "T_LESS_THAN", "content": "<"},
+            {"type": "T_INT_LITERAL", "content": "10"},
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_IDENTIFIER", "content": "match_case"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Function Calls",
+        "description": "Test function calls with reserved word identifiers",
+        "code": "process_if_data() handle_while_loop() parse_match_statement()",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "process_if_data"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "handle_while_loop"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "parse_match_statement"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Assignment",
+        "description": "Test assignment with reserved word identifiers",
+        "code": "matched = true ifey = false whiley = 42",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "matched"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_BOOL_LITERAL", "content": "true"},
+            {"type": "T_IDENTIFIER", "content": "ifey"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_BOOL_LITERAL", "content": "false"},
+            {"type": "T_IDENTIFIER", "content": "whiley"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "42"}
+        ]
+    },
+    {
+        "test_name": "Reserved Words in Complex Expressions",
+        "description": "Test complex expressions with reserved word identifiers",
+        "code": "if (matched && ifey) { while (whiley > 0) { enumy++; } }",
+        "result": [
+            {"type": "T_IF", "content": "if"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "matched"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_IDENTIFIER", "content": "ifey"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_WHILE", "content": "while"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "whiley"},
+            {"type": "T_GREATER_THAN", "content": ">"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "enumy"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    }
+] 

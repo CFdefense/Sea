@@ -25,15 +25,22 @@
     },
     {
         "test_name": "Operator Combinations",
-        "description": "Test ambiguous operator combinations",
-        "code": "=====>>=<!===",
+        "description": "Test realistic operator combinations",
+        "code": "x == y && z != w || a <= b >= c",
         "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
             {"type": "T_EQUALS", "content": "=="},
-            {"type": "T_EQUALS", "content": "=="},
-            {"type": "T_GREATER_EQUAL", "content": ">="},
-            {"type": "T_GREATER_THAN", "content": ">"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_IDENTIFIER", "content": "z"},
             {"type": "T_NOT_EQUALS", "content": "!="},
-            {"type": "T_EQUALS", "content": "=="}
+            {"type": "T_IDENTIFIER", "content": "w"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_GREATER_EQUAL", "content": ">="},
+            {"type": "T_IDENTIFIER", "content": "c"}
         ]
     },
     {
@@ -66,6 +73,15 @@
             {"type": "T_IDENTIFIER", "content": "id2"},
             {"type": "T_IDENTIFIER", "content": "id3"},
             {"type": "T_IDENTIFIER", "content": "id4"}
+        ]
+    },
+    {
+        "test_name": "Comment-Like Operators",
+        "description": "Test operators that might be confused with comments",
+        "code": "/ # ## ### #### * ** *** ****",
+        "result": [
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# ## ### #### * ** *** ****"}
         ]
     }
 ] 

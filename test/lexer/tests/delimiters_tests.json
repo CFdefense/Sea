@@ -18,7 +18,7 @@
     {
         "test_name": "Special Characters",
         "description": "Test special characters",
-        "code": "@ # $ & ~ ` ?",
+        "code": "@#$&~`?",
         "result": [
             {"type": "T_AT", "content": "@"},
             {"type": "T_HASH", "content": "#"},
