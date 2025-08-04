@@ -35,6 +35,18 @@ type RegexToken struct {
 	Type  string
 }
 
+// Exported helper functions for testing
+
+// ConvertToPostfix converts a regex pattern to postfix notation for testing
+func ConvertToPostfix(pattern string) string {
+	return postfix(pattern, "TEST", nil)
+}
+
+// CreateNFA creates an NFA from a postfix regex pattern for testing
+func CreateNFA(postfixPattern string, tokenType TokenType) *NFA {
+	return thompsonConstruct(postfixPattern, tokenType)
+}
+
 // tokenizeRegex splits a regex string into regex atoms
 func tokenizeRegex(pattern string) []RegexToken {
 	var tokens []RegexToken
