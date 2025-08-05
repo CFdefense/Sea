@@ -236,8 +236,8 @@ func (l *Lexer) handleSingleLineComment(content string, pos int) (bool, int) {
 			}
 		}
 
-		// Only treat as comment if followed by a space or at end of line
-		if isComment && (pos+1 >= len(content) || content[pos+1] == ' ') {
+		// Only treat as comment if it's at start of line or followed by non-whitespace
+		if isComment {
 			end := pos + 1
 			// Continue to end of line, but don't consume the newline character
 			for end < len(content) && content[end] != '\n' && content[end] != '\r' {
