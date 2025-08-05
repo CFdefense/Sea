@@ -100,8 +100,6 @@ func mapIdentifierToKeywordIfMatch(content string) TokenType {
 		return T_BREAK
 	case "continue":
 		return T_CONTINUE
-	case "goto":
-		return T_GOTO
 	case "sizeof":
 		return T_SIZEOF
 	case "asm":
@@ -118,7 +116,7 @@ func isKeywordTokenType(tokenType TokenType) bool {
 		tokenType == T_ENUM || tokenType == T_STRUCT || tokenType == T_CONST ||
 		tokenType == T_VOID || tokenType == T_INT || tokenType == T_BOOL_KEYWORD ||
 		tokenType == T_MUT || tokenType == T_RETURN || tokenType == T_DEFAULT ||
-		tokenType == T_BREAK || tokenType == T_CONTINUE || tokenType == T_GOTO ||
+		tokenType == T_BREAK || tokenType == T_CONTINUE ||
 		tokenType == T_SIZEOF || tokenType == T_ASM || tokenType == T_FUNCTION
 }
 

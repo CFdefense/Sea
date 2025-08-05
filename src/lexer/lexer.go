@@ -184,7 +184,6 @@ func (l *Lexer) buildTokenNFAs() {
 		{"DEFAULT", "default", "", T_DEFAULT},
 		{"BREAK", "break", "", T_BREAK},
 		{"CONTINUE", "continue", "", T_CONTINUE},
-		{"GOTO", "goto", "", T_GOTO},
 		{"SIZEOF", "sizeof", "", T_SIZEOF},
 		{"ASM", "asm", "", T_ASM},
 

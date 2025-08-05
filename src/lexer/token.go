@@ -20,7 +20,7 @@ const (
 	NUMBER_PATTERN_STR = `^(0x[0-9a-fA-F]+|0b[01]+|[0-9]+)`
 
 	// Keywords (must be before identifiers)
-	KEYWORD_PATTERN_STR = `^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|default|break|continue|goto|sizeof|asm)`
+	KEYWORD_PATTERN_STR = `^(if|else|while|do|for|match|enum|struct|const|void|int|bool|mut|return|default|break|continue|sizeof|asm)`
 
 	// Constants (all uppercase)
 	CONSTANT_PATTERN_STR = `^[A-Z][A-Z0-9_]*`
@@ -146,10 +146,6 @@ const (
 	T_MEMBER_OPERATOR  // Member access operators (., ->)
 
 	// Control flow
-	T_LABEL         // Labels for goto statements
-	T_CASE_LABEL    // Case labels in switch statements
-	T_DEFAULT_LABEL // Default label in switch statements
-
 	// Assembly-specific tokens
 	T_ASM_BLOCK       // asm { ... } block markers
 	T_ASM_INSTRUCTION // Assembly mnemonics (mov, push, pop, etc.)
@@ -222,7 +218,6 @@ const (
 	T_DEFAULT      // default keyword
 	T_BREAK        // break keyword
 	T_CONTINUE     // continue keyword
-	T_GOTO         // goto keyword
 	T_SIZEOF       // sizeof keyword
 	T_ASM          // asm keyword
 
@@ -318,12 +313,6 @@ func (tt TokenType) String() string {
 		return "T_BINARY_OPERATOR"
 	case T_MEMBER_OPERATOR:
 		return "T_MEMBER_OPERATOR"
-	case T_LABEL:
-		return "T_LABEL"
-	case T_CASE_LABEL:
-		return "T_CASE_LABEL"
-	case T_DEFAULT_LABEL:
-		return "T_DEFAULT_LABEL"
 	case T_ASM_BLOCK:
 		return "T_ASM_BLOCK"
 	case T_ASM_INSTRUCTION:
@@ -450,8 +439,6 @@ func (tt TokenType) String() string {
 		return "T_BREAK"
 	case T_CONTINUE:
 		return "T_CONTINUE"
-	case T_GOTO:
-		return "T_GOTO"
 	case T_SIZEOF:
 		return "T_SIZEOF"
 	case T_ASM:

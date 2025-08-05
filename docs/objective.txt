@@ -21,7 +21,7 @@ c99
     - static types
     - complex data types (struct, enum)
     - reserved keywords (int, float, etc)
-    - flow control (for, while, switch, etc)
+    - flow control (for, while, etc)
     - logical operators (+, /, *, %, :=, !, !=, //, -, &, <<, >>, |, &&, ||, ^, "")
     - {}, (), []
     - fns (some coming from c?)

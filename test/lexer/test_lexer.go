@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/CFdefense/compiler/src/lexer"
 )
@@ -30,7 +31,8 @@ type TestResult struct {
 	Result   bool
 	Expected []TokenResult
 	Actual   []lexer.Token
-	Error    string // Add error field for better debugging
+	Error    string        // Add error field for better debugging
+	Duration time.Duration // Add timing information
 }
 
 // function to iterate over all lexer test cases
@@ -38,6 +40,11 @@ type TestResult struct {
 func RunLexerTests(debug bool) []TestResult {
 	var test_results []TestResult
 	l := lexer.InitializeLexer(debug)
+
+	// Track overall timing
+	overallStart := time.Now()
+	totalTests := 0
+	passedTests := 0
 
 	// get all lexer json test files
 	files, err := os.ReadDir(LEXER_TEST_DIR)
@@ -58,6 +65,10 @@ func RunLexerTests(debug bool) []TestResult {
 
 			// execute tests and add results to test results
 			for _, test := range tests {
+				// Track individual test timing
+				testStart := time.Now()
+				totalTests++
+
 				// reset lexer in between uses
 				l.ResetLexer()
 
@@ -71,6 +82,14 @@ func RunLexerTests(debug bool) []TestResult {
 				token_stream_result := l.GetTokenStream()
 
 				result, errorMsg := compareTokens(token_stream_result, test.ExpectedResult)
+
+				// Track test result
+				if result {
+					passedTests++
+				}
+
+				// Calculate test duration
+				testDuration := time.Since(testStart)
 
 				// Debug output for failing tests
 				if !result {
@@ -95,6 +114,7 @@ func RunLexerTests(debug bool) []TestResult {
 					Expected: test.ExpectedResult,
 					Actual:   token_stream_result,
 					Error:    errorMsg,
+					Duration: testDuration,
 				}
 
 				// add test result to test results
@@ -102,6 +122,19 @@ func RunLexerTests(debug bool) []TestResult {
 			}
 		}
 	}
+
+	// Calculate overall timing
+	overallDuration := time.Since(overallStart)
+
+	// Print timing summary
+	fmt.Printf("\n=== TIMING SUMMARY ===\n")
+	fmt.Printf("Total tests: %d\n", totalTests)
+	fmt.Printf("Passed: %d\n", passedTests)
+	fmt.Printf("Failed: %d\n", totalTests-passedTests)
+	fmt.Printf("Overall duration: %v\n", overallDuration)
+	fmt.Printf("Average time per test: %v\n", overallDuration/time.Duration(totalTests))
+	fmt.Printf("Tests per second: %.2f\n", float64(totalTests)/overallDuration.Seconds())
+	fmt.Printf("=====================\n\n")
 
 	return test_results
 }
