@@ -1,6 +1,0 @@
-// Enum definition
-enum Color {
-    RED,
-    GREEN,
-    BLUE
-};

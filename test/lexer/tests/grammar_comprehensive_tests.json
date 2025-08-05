@@ -1,0 +1,530 @@
+[
+    {
+        "test_name": "Decorators",
+        "description": "Test decorator syntax with @ symbol",
+        "code": "@deprecated @inline @noinline",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "deprecated"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "inline"},
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "noinline"}
+        ]
+    },
+    {
+        "test_name": "Decorated Function",
+        "description": "Test function with decorator",
+        "code": "@inline int fast_function() { }",
+        "result": [
+            {"type": "T_AT", "content": "@"},
+            {"type": "T_IDENTIFIER", "content": "inline"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "fast_function"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Mutability Specifiers",
+        "description": "Test mut keyword in various contexts",
+        "code": "mut int x int mut y",
+        "result": [
+            {"type": "T_MUT", "content": "mut"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_MUT", "content": "mut"},
+            {"type": "T_IDENTIFIER", "content": "y"}
+        ]
+    },
+    {
+        "test_name": "Array Declarations",
+        "description": "Test array declaration syntax",
+        "code": "int arr[10] int mut arr2[20]",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "arr"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_INT_LITERAL", "content": "10"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_MUT", "content": "mut"},
+            {"type": "T_IDENTIFIER", "content": "arr2"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_INT_LITERAL", "content": "20"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"}
+        ]
+    },
+    {
+        "test_name": "Pointer Declarations",
+        "description": "Test pointer declaration syntax",
+        "code": "int *ptr mut int *mut_ptr",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "ptr"},
+            {"type": "T_MUT", "content": "mut"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "mut_ptr"}
+        ]
+    },
+    {
+        "test_name": "Function Pointer Declarations",
+        "description": "Test function pointer syntax",
+        "code": "int (*func_ptr)(int, bool)",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "func_ptr"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Variable Declarations",
+        "description": "Test various variable declaration patterns",
+        "code": "int x, y, z; bool flag;",
+        "result": [
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "z"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_IDENTIFIER", "content": "flag"},
+            {"type": "T_SEMICOLON", "content": ";"}
+        ]
+    },
+    {
+        "test_name": "Assignment Operators",
+        "description": "Test all assignment operators",
+        "code": "x = 1 x += 2 x -= 3 x *= 4 x /= 5 x %= 6 x <<= 7 x >>= 8 x &= 9 x ^= 10 x |= 11",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "2"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "3"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "4"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "5"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "6"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_LEFT_SHIFT", "content": "<<"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "7"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_RIGHT_SHIFT", "content": ">>"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "8"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "9"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_XOR", "content": "^"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "10"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_OR", "content": "|"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "11"}
+        ]
+    },
+    {
+        "test_name": "Boolean Operators",
+        "description": "Test boolean comparison and logical operators",
+        "code": "x == y x != y x < y x > y x <= y x >= y x && y x || y !x",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_EQUALS", "content": "=="},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_NOT_EQUALS", "content": "!="},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_LESS_THAN", "content": "<"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_GREATER_THAN", "content": ">"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_LESS_EQUAL", "content": "<="},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_GREATER_EQUAL", "content": ">="},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_AND", "content": "&&"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_OR", "content": "||"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_IDENTIFIER", "content": "x"}
+        ]
+    },
+    {
+        "test_name": "Unary Operators",
+        "description": "Test unary operators including increment/decrement",
+        "code": "++x --x x++ x-- +x -x ~x !x",
+        "result": [
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MINUS", "content": "-"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_TILDE", "content": "~"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_IDENTIFIER", "content": "x"}
+        ]
+    },
+    {
+        "test_name": "Member Access",
+        "description": "Test member access operators",
+        "code": "obj.field ptr->field",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "obj"},
+            {"type": "T_DOT", "content": "."},
+            {"type": "T_IDENTIFIER", "content": "field"},
+            {"type": "T_IDENTIFIER", "content": "ptr"},
+            {"type": "T_MEMBER_OPERATOR", "content": "->"},
+            {"type": "T_IDENTIFIER", "content": "field"}
+        ]
+    },
+    {
+        "test_name": "Array Access",
+        "description": "Test array access syntax",
+        "code": "arr[0] matrix[1][2]",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "arr"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"},
+            {"type": "T_IDENTIFIER", "content": "matrix"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_INT_LITERAL", "content": "2"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"}
+        ]
+    },
+    {
+        "test_name": "Type Casting",
+        "description": "Test type casting syntax",
+        "code": "(int)x (bool)y (void*)ptr",
+        "result": [
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_BOOL_TYPE", "content": "bool"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_VOID_TYPE", "content": "void"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_IDENTIFIER", "content": "ptr"}
+        ]
+    },
+    {
+        "test_name": "Sizeof Operator",
+        "description": "Test sizeof operator",
+        "code": "sizeof(int) sizeof(x)",
+        "result": [
+            {"type": "T_SIZEOF", "content": "sizeof"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_SIZEOF", "content": "sizeof"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Conditional Expression",
+        "description": "Test ternary conditional operator",
+        "code": "x ? y : z",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_QUESTION", "content": "?"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_COLON", "content": ":"},
+            {"type": "T_IDENTIFIER", "content": "z"}
+        ]
+    },
+    {
+        "test_name": "Comma Operator",
+        "description": "Test comma operator",
+        "code": "x, y, z",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "z"}
+        ]
+    },
+    {
+        "test_name": "Labeled Statements",
+        "description": "Test labeled statements",
+        "code": "start: x = 1;",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "start"},
+            {"type": "T_COLON", "content": ":"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_SEMICOLON", "content": ";"}
+        ]
+    },
+    {
+        "test_name": "Jump Statements",
+        "description": "Test jump statements",
+        "code": "break; continue; return; return x;",
+        "result": [
+            {"type": "T_BREAK", "content": "break"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CONTINUE", "content": "continue"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_SEMICOLON", "content": ";"}
+        ]
+    },
+    {
+        "test_name": "Block Expressions",
+        "description": "Test block expressions",
+        "code": "{ int x = 1; x }",
+        "result": [
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Reference Operators",
+        "description": "Test reference and dereference operators",
+        "code": "&x *ptr &mut y",
+        "result": [
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "ptr"},
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_MUT", "content": "mut"},
+            {"type": "T_IDENTIFIER", "content": "y"}
+        ]
+    },
+    {
+        "test_name": "Complex Match Statement",
+        "description": "Test complex match statement with multiple arms",
+        "code": "match (x) { 1 => { return 1; } 2 => { return 2; } _ => { return 0; } }",
+        "result": [
+            {"type": "T_MATCH", "content": "match"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_INT_LITERAL", "content": "1"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_INT_LITERAL", "content": "2"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_INT_LITERAL", "content": "2"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_UNDERSCORE", "content": "_"},
+            {"type": "T_ARROW", "content": "=>"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_RETURN", "content": "return"},
+            {"type": "T_INT_LITERAL", "content": "0"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Enum Declaration",
+        "description": "Test enum declaration syntax",
+        "code": "enum Color { Red, Green, Blue }",
+        "result": [
+            {"type": "T_ENUM", "content": "enum"},
+            {"type": "T_IDENTIFIER", "content": "Color"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_IDENTIFIER", "content": "Red"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "Green"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "Blue"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Struct Declaration",
+        "description": "Test struct declaration syntax",
+        "code": "struct Point { int x; int y; }",
+        "result": [
+            {"type": "T_STRUCT", "content": "struct"},
+            {"type": "T_IDENTIFIER", "content": "Point"},
+            {"type": "T_OPENING_BRACE", "content": "{"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "x"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "y"},
+            {"type": "T_SEMICOLON", "content": ";"},
+            {"type": "T_CLOSING_BRACE", "content": "}"}
+        ]
+    },
+    {
+        "test_name": "Const Declaration",
+        "description": "Test const declaration syntax",
+        "code": "const int MAX_SIZE = 100;",
+        "result": [
+            {"type": "T_CONST", "content": "const"},
+            {"type": "T_INT_TYPE", "content": "int"},
+            {"type": "T_IDENTIFIER", "content": "MAX_SIZE"},
+            {"type": "T_ASSIGN", "content": "="},
+            {"type": "T_INT_LITERAL", "content": "100"},
+            {"type": "T_SEMICOLON", "content": ";"}
+        ]
+    },
+    {
+        "test_name": "String Literals with Escapes",
+        "description": "Test string literals with escape sequences",
+        "code": "\"Hello\\nWorld\" \"Tab\\tHere\" \"Quote\\\"Test\"",
+        "result": [
+            {"type": "T_STRING_LITERAL", "content": "\"Hello\\nWorld\""},
+            {"type": "T_STRING_LITERAL", "content": "\"Tab\\tHere\""},
+            {"type": "T_STRING_LITERAL", "content": "\"Quote\\\"Test\""}
+        ]
+    },
+    {
+        "test_name": "Character Literals",
+        "description": "Test character literals with escapes",
+        "code": "'a' '\\n' '\\t' '\\''",
+        "result": [
+            {"type": "T_CHAR_LITERAL", "content": "'a'"},
+            {"type": "T_CHAR_LITERAL", "content": "'\\n'"},
+            {"type": "T_CHAR_LITERAL", "content": "'\\t'"},
+            {"type": "T_CHAR_LITERAL", "content": "'\\''"}
+        ]
+    },
+    {
+        "test_name": "Complex Expression",
+        "description": "Test complex expression with multiple operators",
+        "code": "a + b * c / d % e << f >> g & h | i ^ j",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_MULTIPLY", "content": "*"},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_DIVIDE", "content": "/"},
+            {"type": "T_IDENTIFIER", "content": "d"},
+            {"type": "T_MODULO", "content": "%"},
+            {"type": "T_IDENTIFIER", "content": "e"},
+            {"type": "T_LEFT_SHIFT", "content": "<<"},
+            {"type": "T_IDENTIFIER", "content": "f"},
+            {"type": "T_RIGHT_SHIFT", "content": ">>"},
+            {"type": "T_IDENTIFIER", "content": "g"},
+            {"type": "T_AMPERSAND", "content": "&"},
+            {"type": "T_IDENTIFIER", "content": "h"},
+            {"type": "T_OR", "content": "|"},
+            {"type": "T_IDENTIFIER", "content": "i"},
+            {"type": "T_XOR", "content": "^"},
+            {"type": "T_IDENTIFIER", "content": "j"}
+        ]
+    },
+    {
+        "test_name": "Nested Parentheses",
+        "description": "Test deeply nested parentheses and brackets",
+        "code": "func(a, b, (c + d), [e, f, g])",
+        "result": [
+            {"type": "T_IDENTIFIER", "content": "func"},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "a"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "b"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_OPENING_PAREN", "content": "("},
+            {"type": "T_IDENTIFIER", "content": "c"},
+            {"type": "T_PLUS", "content": "+"},
+            {"type": "T_IDENTIFIER", "content": "d"},
+            {"type": "T_CLOSING_PAREN", "content": ")"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_OPENING_BRACKET", "content": "["},
+            {"type": "T_IDENTIFIER", "content": "e"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "f"},
+            {"type": "T_COMMA", "content": ","},
+            {"type": "T_IDENTIFIER", "content": "g"},
+            {"type": "T_CLOSING_BRACKET", "content": "]"},
+            {"type": "T_CLOSING_PAREN", "content": ")"}
+        ]
+    },
+    {
+        "test_name": "Special Characters",
+        "description": "Test all special characters from grammar",
+        "code": "! # $ % & ' ( ) * + , - . / : ; < = > ? @ [ ] ^ _ ` { | } ~",
+        "result": [
+            {"type": "T_NOT", "content": "!"},
+            {"type": "T_SINGLE_LINE_COMMENT", "content": "# $ % & ' ( ) * + , - . / : ; < = > ? @ [ ] ^ _ ` { | } ~"}
+        ]
+    }
+] 

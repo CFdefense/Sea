@@ -1,4 +1,0 @@
-// Simple function with one parameter
-fn add(type int a, type int b) {
-    return a + b;
-}

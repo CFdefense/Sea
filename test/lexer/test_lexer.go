@@ -62,7 +62,7 @@ func RunLexerTests(debug bool) []TestResult {
 				l.ResetLexer()
 
 				// set test content
-				l.SetContent(map[string]string{"test_input": test.TestContent})
+				l.SetContent(map[string]string{"test.txt": test.TestContent})
 
 				// run lexical analysis
 				l.LexicalAnalysis("")
@@ -71,6 +71,22 @@ func RunLexerTests(debug bool) []TestResult {
 				token_stream_result := l.GetTokenStream()
 
 				result, errorMsg := compareTokens(token_stream_result, test.ExpectedResult)
+
+				// Debug output for failing tests
+				if !result {
+					fmt.Printf("DEBUG: Test '%s' failed\n", test.TestName)
+					fmt.Printf("DEBUG: Input: '%s'\n", test.TestContent)
+					fmt.Printf("DEBUG: Expected %d tokens, got %d tokens\n", len(test.ExpectedResult), len(token_stream_result))
+					fmt.Printf("DEBUG: Expected tokens:\n")
+					for i, expected := range test.ExpectedResult {
+						fmt.Printf("  %d: {type: %s, content: %s}\n", i, expected.Type, expected.Content)
+					}
+					fmt.Printf("DEBUG: Actual tokens:\n")
+					for i, actual := range token_stream_result {
+						fmt.Printf("  %d: {type: %s, content: %s}\n", i, actual.GetTokenType().String(), actual.GetTokenContent())
+					}
+					fmt.Printf("DEBUG: Error: %s\n", errorMsg)
+				}
 
 				// Create a TestResult instance
 				test_result := TestResult{

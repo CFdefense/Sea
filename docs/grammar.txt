@@ -41,16 +41,10 @@ statement = labeled_statement |
            do_while_statement |
            for_statement |
            match_statement |
-           switch_statement |
            asm_statement |
            jump_statement |
            block |
            expr ";" ;
-
-// labeled statements for goto
-labeled_statement = id ":" statement |
-                   "case" expr ":" statement |
-                   "default" ":" statement ;
 
 // variable declaration with optional mutability
 var_decl = type mut_spec declarator ("," declarator)* ";" ;
@@ -80,18 +74,8 @@ while_statement = "while" "(" expr ")" block ;
 
 do_while_statement = "do" block "while" "(" expr ")" ";" ;
 
-// switch-case statement
-switch_statement = "switch" "(" expr ")" "{" case_list "}" ;
-
-case_list = case case_list | default_case | ε ;
-
-case = "case" expr ":" statement_list ;
-
-default_case = "default" ":" statement_list ;
-
 // jump statements
-jump_statement = "goto" id ";" |
-                "continue" ";" |
+jump_statement = "continue" ";" |
                 "break" ";" |
                 "return" expr? ";" ;
 

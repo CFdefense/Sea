@@ -135,7 +135,7 @@
     {
         "test_name": "ASM with Comments",
         "description": "Test assembly with comments",
-        "code": "asm { mov %rax, %rbx # save rax push %rcx /* save rcx */ }",
+        "code": "asm { mov %rax, %rbx # save rax\npush %rcx /* save rcx */ }",
         "result": [
             {"type": "T_ASM", "content": "asm"},
             {"type": "T_OPENING_BRACE", "content": "{"},
