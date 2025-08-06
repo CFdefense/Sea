@@ -59,42 +59,42 @@ func (l *Lexer) Scan(path string) {
 	l.debug.DebugLog(fmt.Sprintf("Beginning Lexer Scan on Directory: %v", path), false)
 	files, err := os.ReadDir(path)
 
+	if err != nil {
+		l.debug.DebugLog(fmt.Sprintf("Failed to read directory: %v", err), true)
+		return
+	}
+
 	var fileNames []string
 	for _, file := range files {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".txt" {
-			fileNames = append(fileNames, file.Name())
+		if file.IsDir() || filepath.Ext(file.Name()) != ".txt" {
+			continue
+		}
+
+		fileName := file.Name()
+		fileNames = append(fileNames, fileName)
+
+		// Use filepath.Join to create the full path
+		fullPath := filepath.Join(path, fileName)
+
+		data, err := os.ReadFile(fullPath)
+		if err != nil {
+			l.debug.DebugLog(fmt.Sprintf("Error reading file: %v", err), true)
+			return
+		}
+
+		// add file name and contents to the content map
+		// convert bytes slice to string
+		// in format of key: [file_name, value: file_content]
+		fileContent := string(data)
+		l.content[fileName] = fileContent
+
+		l.debug.DebugLog(fmt.Sprintf("Opened File: %v", fileName), false)
+		l.debug.DebugLog("Found Data:", false)
+		for _, line := range strings.Split(fileContent, "\n") {
+			l.debug.DebugLog(fmt.Sprintf("\t%s", line), false)
 		}
 	}
 	l.debug.DebugLog(fmt.Sprintf("Found Files: %v", fileNames), false)
-
-	if err != nil {
-		l.debug.DebugLog(fmt.Sprintf("Failed to read directory: %v", err), true)
-	}
-
-	for _, file := range files {
-		// open the file and read entire file contents
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".txt" {
-			// Use filepath.Join to create the full path
-			fullPath := filepath.Join(path, file.Name())
-
-			data, err := os.ReadFile(fullPath)
-			if err != nil {
-				l.debug.DebugLog(fmt.Sprintf("Error reading file: %v", err), true)
-				return
-			}
-
-			// add file name and contents to the content map
-			// convert bytes slice to string
-			// in format of key: [file_name, value: file_content]
-			l.content[file.Name()] = string(data)
-
-			l.debug.DebugLog(fmt.Sprintf("Opened File: %v", file.Name()), false)
-			l.debug.DebugLog("Found Data:", false)
-			for line := range strings.SplitSeq(string(data), "\n") {
-				l.debug.DebugLog(fmt.Sprintf("\t%s", line), false)
-			}
-		}
-	}
 }
 
 // function to begin analysis
@@ -213,22 +213,22 @@ func (l *Lexer) buildTokenNFAs() {
 	}
 
 	// Build NFAs for each token
-	l.tokenNFAs = []*NFA{} // reset NFAs
-	for i := range regexDefs {
-		regexDefs[i].Postfix = postfix(regexDefs[i].Pattern, regexDefs[i].Name, l.debug)
-		l.debug.DebugLog(fmt.Sprintf("Pattern: %s -> Postfix: %s", regexDefs[i].Pattern, regexDefs[i].Postfix), false)
-		if regexDefs[i].Name == "STRING" {
-			tokens := tokenizeRegex(regexDefs[i].Pattern)
+	l.tokenNFAs = make([]*NFA, 0, len(regexDefs))
+	for i, regexDef := range regexDefs {
+		regexDefs[i].Postfix = postfix(regexDef.Pattern, regexDef.Name, l.debug)
+		l.debug.DebugLog(fmt.Sprintf("Pattern: %s -> Postfix: %s", regexDef.Pattern, regexDefs[i].Postfix), false)
+		if regexDef.Name == "STRING" {
+			tokens := tokenizeRegex(regexDef.Pattern)
 			l.debug.DebugLog(fmt.Sprintf("STRING pattern tokens: %v", tokens), false)
 			for j, t := range tokens {
 				l.debug.DebugLog(fmt.Sprintf("  Token %d: %s (%s)", j, t.Value, t.Type), false)
 			}
 		}
-		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDefs[i].TokenType)
+		nfa := thompsonConstruct(regexDefs[i].Postfix, regexDef.TokenType)
 		nfa.Print(l.debug)
-		l.testNFA(nfa, regexDefs[i].Name, regexDefs[i].Pattern)
+		l.testNFA(nfa, regexDef.Name, regexDef.Pattern)
 		l.tokenNFAs = append(l.tokenNFAs, nfa)
-		l.debug.DebugLog(fmt.Sprintf("Added NFA %d for pattern %s with token type %s", len(l.tokenNFAs)-1, regexDefs[i].Name, regexDefs[i].TokenType.String()), false)
+		l.debug.DebugLog(fmt.Sprintf("Added NFA %d for pattern %s with token type %s", len(l.tokenNFAs)-1, regexDef.Name, regexDef.TokenType.String()), false)
 	}
 
 	l.debug.DebugLog("lexer: success on NFAs", false)
@@ -335,6 +335,26 @@ func (l *Lexer) SetContent(content map[string]string) {
 
 func (l *Lexer) testNFA(nfa *NFA, name, pattern string) {
 	// TODO: Not sure if we need this testing functionality if converting to DFA but wrote logic for it anyways
+}
+
+func (l *Lexer) updatePosition(text string) {
+	for _, c := range text {
+		if c == '\n' {
+			l.row++
+			l.col = 1
+		} else {
+			l.col++
+		}
+	}
+}
+
+func isAllDigits(text string) bool {
+	for _, c := range text {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return len(text) > 0
 }
 
 // TestLexerWithInput tests the lexer with a simple input string
@@ -487,14 +507,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 				l.token_stream = append(l.token_stream, identifierToken)
 
 				// Update position
-				for _, c := range tokenText {
-					if c == '\n' {
-						l.row++
-						l.col = 1
-					} else {
-						l.col++
-					}
-				}
+				l.updatePosition(tokenText)
 				pos += maxMatchLength
 				return true, pos
 			}
@@ -503,12 +516,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 		// Special handling for comment-like operators (split consecutive operators)
 		if matchedTokenType == T_INT_DIVIDE && len(tokenText) > 2 {
 			// Split consecutive // operators
-			slashCount := 0
-			for _, c := range tokenText {
-				if c == '/' {
-					slashCount++
-				}
-			}
+			slashCount := strings.Count(tokenText, "/")
 
 			if slashCount > 2 {
 				// Split into individual // and / tokens
@@ -542,12 +550,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 				}
 
 				// Update position
-				for _, c := range tokenText {
-					if c == '\n' {
-						l.row++
-						l.col = 1
-					}
-				}
+				l.updatePosition(tokenText)
 				pos += maxMatchLength
 				return true, pos
 			}
@@ -597,14 +600,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 					}
 
 					// Update position
-					for _, c := range tokenText {
-						if c == '\n' {
-							l.row++
-							l.col = 1
-						} else {
-							l.col++
-						}
-					}
+					l.updatePosition(tokenText)
 					pos += maxMatchLength
 					return true, pos
 				}
@@ -655,14 +651,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 					l.token_stream = append(l.token_stream, identifierToken)
 
 					// Update position
-					for _, c := range tokenText {
-						if c == '\n' {
-							l.row++
-							l.col = 1
-						} else {
-							l.col++
-						}
-					}
+					l.updatePosition(tokenText)
 					pos += maxMatchLength
 					return true, pos
 				} else {
@@ -678,14 +667,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 				// Check if this is an oversized decimal integer
 				if len(tokenText) > 19 && tokenText[0] >= '1' && tokenText[0] <= '9' {
 					// Check if it's all digits (decimal number)
-					allDigits := true
-					for _, c := range tokenText {
-						if c < '0' || c > '9' {
-							allDigits = false
-							break
-						}
-					}
-					if allDigits {
+					if isAllDigits(tokenText) {
 						tokenType = T_ERROR
 					} else {
 						tokenType = T_INT_LITERAL
@@ -728,14 +710,7 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 		l.debug.DebugLog(fmt.Sprintf("Token: %s (%s) at %d:%d", tokenText, tokenType.String(), l.row, l.col), false)
 
 		// Update position and column
-		for _, c := range tokenText {
-			if c == '\n' {
-				l.row++
-				l.col = 1
-			} else {
-				l.col++
-			}
-		}
+		l.updatePosition(tokenText)
 		pos += maxMatchLength
 		return true, pos
 	} else {
