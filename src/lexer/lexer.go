@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	debugger "github.com/CFdefense/compiler/src/debug"
@@ -406,13 +407,18 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 			found := false
 			var nextState *DFAState
 
-			// First, try multi-character patterns (for operators and keywords)
-			for transitionSymbol, transition := range currentState.transitions {
-				if transitionSymbol != "any" && len(transitionSymbol) > 1 {
-					// Check if the remaining content starts with this transition symbol
-					if i+len(transitionSymbol) <= len(content) &&
-						content[i:i+len(transitionSymbol)] == transitionSymbol {
-						nextState = transition
+			// First, try multi-character patterns (for operators and keywords) deterministically by length desc
+			if len(currentState.transitions) > 0 {
+				multi := make([]string, 0, len(currentState.transitions))
+				for k := range currentState.transitions {
+					if k != "any" && len(k) > 1 {
+						multi = append(multi, k)
+					}
+				}
+				sort.Slice(multi, func(a, b int) bool { return len(multi[a]) > len(multi[b]) })
+				for _, transitionSymbol := range multi {
+					if i+len(transitionSymbol) <= len(content) && content[i:i+len(transitionSymbol)] == transitionSymbol {
+						nextState = currentState.transitions[transitionSymbol]
 						found = true
 						i += len(transitionSymbol)
 						break
@@ -469,92 +475,6 @@ func (l *Lexer) handleDfaOrUnknown(content string, pos int) (bool, int) {
 	if matched {
 		// Create a token for the matched text
 		tokenText := content[pos : pos+maxMatchLength]
-
-		// Special handling for invalid identifiers (starting with digits)
-		if matchedTokenType == T_STRING_LITERAL && len(tokenText) > 0 && tokenText[0] >= '0' && tokenText[0] <= '9' {
-			// Check if this looks like a number followed by letters
-			hasLetters := false
-			numberEnd := 0
-			for i, c := range tokenText {
-				if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' {
-					hasLetters = true
-					numberEnd = i
-					break
-				}
-			}
-
-			if hasLetters && numberEnd > 0 {
-				// Split into number + identifier
-				numberText := tokenText[:numberEnd]
-				identifierText := tokenText[numberEnd:]
-
-				// Create number token
-				numberToken := Token{
-					token_type: T_INT_LITERAL,
-					lexeme:     numberText,
-					row:        l.row,
-					col:        l.col,
-				}
-				l.token_stream = append(l.token_stream, numberToken)
-
-				// Create identifier token
-				identifierToken := Token{
-					token_type: T_IDENTIFIER,
-					lexeme:     identifierText,
-					row:        l.row,
-					col:        l.col + len(numberText),
-				}
-				l.token_stream = append(l.token_stream, identifierToken)
-
-				// Update position
-				l.updatePosition(tokenText)
-				pos += maxMatchLength
-				return true, pos
-			}
-		}
-
-		// Special handling for comment-like operators (split consecutive operators)
-		if matchedTokenType == T_INT_DIVIDE && len(tokenText) > 2 {
-			// Split consecutive // operators
-			slashCount := strings.Count(tokenText, "/")
-
-			if slashCount > 2 {
-				// Split into individual // and / tokens
-				remaining := tokenText
-				for len(remaining) >= 2 {
-					if len(remaining) >= 2 && remaining[0] == '/' && remaining[1] == '/' {
-						// Add // token
-						intDivideToken := Token{
-							token_type: T_INT_DIVIDE,
-							lexeme:     "//",
-							row:        l.row,
-							col:        l.col,
-						}
-						l.token_stream = append(l.token_stream, intDivideToken)
-						l.col += 2
-						remaining = remaining[2:]
-					} else if len(remaining) >= 1 && remaining[0] == '/' {
-						// Add / token
-						divideToken := Token{
-							token_type: T_DIVIDE,
-							lexeme:     "/",
-							row:        l.row,
-							col:        l.col,
-						}
-						l.token_stream = append(l.token_stream, divideToken)
-						l.col++
-						remaining = remaining[1:]
-					} else {
-						break
-					}
-				}
-
-				// Update position
-				l.updatePosition(tokenText)
-				pos += maxMatchLength
-				return true, pos
-			}
-		}
 
 		// For keyword tokens, check word boundaries (keep this simple)
 		if isKeywordTokenType(matchedTokenType) {

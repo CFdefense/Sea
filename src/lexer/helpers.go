@@ -351,29 +351,6 @@ func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
 		}
 	}
 
-	// Handle standalone ++ and -- operators (split them)
-	if pos+2 <= len(content) && content[pos:pos+2] == "++" {
-		token1 := createToken(T_PLUS, "+", l.row, l.col)
-		l.token_stream = append(l.token_stream, token1)
-		l.col++
-		token2 := createToken(T_PLUS, "+", l.row, l.col)
-		l.token_stream = append(l.token_stream, token2)
-		l.col++
-		pos += 2
-		return true, pos
-	}
-
-	if pos+2 <= len(content) && content[pos:pos+2] == "--" {
-		token1 := createToken(T_MINUS, "-", l.row, l.col)
-		l.token_stream = append(l.token_stream, token1)
-		l.col++
-		token2 := createToken(T_MINUS, "-", l.row, l.col)
-		l.token_stream = append(l.token_stream, token2)
-		l.col++
-		pos += 2
-		return true, pos
-	}
-
 	if pos < len(content) && content[pos] == '%' {
 		// Check if it's followed by a letter (then it's a register)
 		if pos+1 < len(content) && ((content[pos+1] >= 'a' && content[pos+1] <= 'z') ||
@@ -559,21 +536,7 @@ func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
 			return true, pos
 		}
 	}
-	if pos+3 <= len(content) && content[pos:pos+3] == ">>=" {
-		token1 := createToken(T_GREATER_EQUAL, ">=", l.row, l.col)
-		l.token_stream = append(l.token_stream, token1)
-		l.col += 2
-		token2 := createToken(T_GREATER_THAN, ">", l.row, l.col)
-		l.token_stream = append(l.token_stream, token2)
-		l.col++
-		pos += 3
-		return true, pos
-	}
-	if pos+2 <= len(content) && content[pos:pos+2] == "=>" && pos+3 <= len(content) && content[pos+2] == '>' {
-		// Skip this position and let the next iteration handle the >>= pattern
-		pos++
-		return true, pos
-	}
+
 	if pos < len(content) && content[pos] == ',' {
 		// Count consecutive commas
 		consecutiveCommas := 0
