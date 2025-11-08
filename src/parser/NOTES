@@ -1,0 +1,35 @@
+been doing some thinking and i believe this is a sane approach:
+
+rd parser with a pratt sub-parser for expressions
+
+1: need to have a token buffer with 3 or so next tokens for lookahead
+2: generally need one handler per nonterminal which is a statement:
+	parse complex object -> parse function,enum,struct usw.
+		-> parse block,if,while,for usw.
+3: need a table of known type names so we can differentiate between stmt/decl
+4: got to order operations with binding powers and associativity for pratt expr
+
+i'm not entirely convinced that the general pratt used for exprs is good for
+declarators, especially pointers. decls have fundamentally different semantics:
+
+expr (l->r): a + b * c => a + (b * c)
+decl (inside-out): 
+	int *f();	: f is a function returning pointer to int
+	int (*f)();	: f is a pointer to function return int
+
+as such: 5: parse core name, then apply a postfix loop that consumes () [], plus
+a prefix loop for leading * chains
+
+a couple gripes with the grammar:
+
+armlist = armlist | arm;
+
+this is self recursive, might want to switch to
+armlist = arm ("," arm)*
+
+should maybe collate the two instances of string_literal
+
+we also need to formally describe operator presedence
+
+this seems to be similar to how gcc does things (separating pratt and decl)
+research shunting yard algorithm!
