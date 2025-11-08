@@ -168,6 +168,57 @@ func createToken(tokenType TokenType, lexeme string, row, col int) Token {
 	}
 }
 
+// handleCompoundAssignment handles compound assignment operators like +=, -=, etc.
+func (l *Lexer) handleCompoundAssignment(operator string, operatorType TokenType, content string, pos int) (bool, int) {
+	// Create operator token
+	token1 := createToken(operatorType, operator, l.row, l.col)
+	l.token_stream = append(l.token_stream, token1)
+	l.col += len(operator)
+
+	// Create assignment token
+	token2 := createToken(T_ASSIGN, "=", l.row, l.col)
+	l.token_stream = append(l.token_stream, token2)
+	l.col++
+
+	return true, pos + len(operator) + 1
+}
+
+// handleShiftAssignment handles shift assignment operators like <<=, >>=
+func (l *Lexer) handleShiftAssignment(operator string, operatorType TokenType, content string, pos int) (bool, int) {
+	// Create operator token
+	token1 := createToken(operatorType, operator, l.row, l.col)
+	l.token_stream = append(l.token_stream, token1)
+	l.col += len(operator)
+
+	// Create assignment token
+	token2 := createToken(T_ASSIGN, "=", l.row, l.col)
+	l.token_stream = append(l.token_stream, token2)
+	l.col++
+
+	return true, pos + len(operator) + 1
+}
+
+// isInASMContext checks if the current position is inside an ASM block
+func (l *Lexer) isInASMContext(content string, pos int) bool {
+	// Look backwards to see if we're inside an asm block
+	for i := pos - 1; i >= 0; i-- {
+		if content[i] == '}' {
+			return false // Found closing brace, not in ASM context
+		} else if content[i] == '{' {
+			// Look for 'asm' before the opening brace
+			j := i - 1
+			for j >= 0 && isWhitespace(content[j]) {
+				j--
+			}
+			if j >= 2 && content[j-2:j+1] == "asm" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 // handleWhitespace handles whitespace characters
 func (l *Lexer) handleWhitespace(content string, pos int) (bool, int) {
 	if isWhitespace(content[pos]) {
@@ -200,23 +251,7 @@ func (l *Lexer) handleSingleLineComment(content string, pos int) (bool, int) {
 		}
 
 		// Check if we're in an ASM context (inside asm { ... })
-		inASMContext := false
-		// Look backwards to see if we're inside an asm block
-		for i := pos - 1; i >= 0; i-- {
-			if content[i] == '}' {
-				break // Found closing brace, not in ASM context
-			} else if content[i] == '{' {
-				// Look for 'asm' before the opening brace
-				j := i - 1
-				for j >= 0 && (content[j] == ' ' || content[j] == '\t' || content[j] == '\n') {
-					j--
-				}
-				if j >= 2 && content[j-2:j+1] == "asm" {
-					inASMContext = true
-				}
-				break
-			}
-		}
+		inASMContext := l.isInASMContext(content, pos)
 
 		// Treat as comment if it's at start of line, preceded by whitespace, or in ASM context
 		isComment := false
@@ -290,16 +325,31 @@ func (l *Lexer) handleMultiLineComment(content string, pos int) (bool, int) {
 
 // handleOperator handles operators and special characters
 func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
-	// Handle >>= operator (right shift assignment)
-	if pos+3 <= len(content) && content[pos:pos+3] == ">>=" {
-		token1 := createToken(T_RIGHT_SHIFT, ">>", l.row, l.col)
-		l.token_stream = append(l.token_stream, token1)
-		l.col += 2
-		token2 := createToken(T_ASSIGN, "=", l.row, l.col)
-		l.token_stream = append(l.token_stream, token2)
-		l.col++
-		pos += 3
-		return true, pos
+	// Handle compound assignment operators
+	if pos+2 <= len(content) {
+		compoundOp := content[pos : pos+2]
+		switch compoundOp {
+		case "+=":
+			return l.handleCompoundAssignment("+", T_PLUS, content, pos)
+		case "-=":
+			return l.handleCompoundAssignment("-", T_MINUS, content, pos)
+		case "*=":
+			return l.handleCompoundAssignment("*", T_MULTIPLY, content, pos)
+		case "/=":
+			return l.handleCompoundAssignment("/", T_DIVIDE, content, pos)
+		case "%=":
+			return l.handleCompoundAssignment("%", T_MODULO, content, pos)
+		case "&=":
+			return l.handleCompoundAssignment("&", T_AMPERSAND, content, pos)
+		case "|=":
+			return l.handleCompoundAssignment("|", T_OR, content, pos)
+		case "^=":
+			return l.handleCompoundAssignment("^", T_XOR, content, pos)
+		case "<<=":
+			return l.handleShiftAssignment("<<", T_LEFT_SHIFT, content, pos)
+		case ">>=":
+			return l.handleShiftAssignment(">>", T_RIGHT_SHIFT, content, pos)
+		}
 	}
 
 	// Handle &mut as separate tokens
@@ -356,25 +406,7 @@ func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
 		if pos+1 < len(content) && ((content[pos+1] >= 'a' && content[pos+1] <= 'z') ||
 			(content[pos+1] >= 'A' && content[pos+1] <= 'Z')) {
 			// Check if we're in an ASM context (inside asm { ... })
-			inASMContext := false
-			// Look backwards to see if we're inside an asm block
-			for i := pos - 1; i >= 0; i-- {
-				if content[i] == '}' {
-					break // Found closing brace, not in ASM context
-				} else if content[i] == '{' {
-					// Look for 'asm' before the opening brace
-					j := i - 1
-					for j >= 0 && (content[j] == ' ' || content[j] == '\t' || content[j] == '\n') {
-						j--
-					}
-					if j >= 2 && content[j-2:j+1] == "asm" {
-						inASMContext = true
-					}
-					break
-				}
-			}
-
-			if inASMContext {
+			if l.isInASMContext(content, pos) {
 				// Let the ASM register handling take care of it
 			} else {
 				// Not in ASM context, treat as modulo operator
@@ -566,25 +598,7 @@ func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
 	}
 	if pos < len(content) && content[pos] == '-' {
 		// Check if we're in an ASM context (inside asm { ... })
-		inASMContext := false
-		// Look backwards to see if we're inside an asm block
-		for i := pos - 1; i >= 0; i-- {
-			if content[i] == '}' {
-				break // Found closing brace, not in ASM context
-			} else if content[i] == '{' {
-				// Look for 'asm' before the opening brace
-				j := i - 1
-				for j >= 0 && (content[j] == ' ' || content[j] == '\t' || content[j] == '\n') {
-					j--
-				}
-				if j >= 2 && content[j-2:j+1] == "asm" {
-					inASMContext = true
-				}
-				break
-			}
-		}
-
-		if inASMContext {
+		if l.isInASMContext(content, pos) {
 			// Check if this negative number is followed by a parenthesis (memory addressing)
 			if pos+1 < len(content) && content[pos+1] >= '0' && content[pos+1] <= '9' {
 				numberEnd := pos + 1
@@ -606,23 +620,7 @@ func (l *Lexer) handleOperator(content string, pos int) (bool, int) {
 	}
 	if pos < len(content) && content[pos] >= '0' && content[pos] <= '9' {
 		// Check if we're in an ASM context (inside asm { ... })
-		inASMContext := false
-		// Look backwards to see if we're inside an asm block
-		for i := pos - 1; i >= 0; i-- {
-			if content[i] == '}' {
-				break // Found closing brace, not in ASM context
-			} else if content[i] == '{' {
-				// Look for 'asm' before the opening brace
-				j := i - 1
-				for j >= 0 && (content[j] == ' ' || content[j] == '\t' || content[j] == '\n') {
-					j--
-				}
-				if j >= 2 && content[j-2:j+1] == "asm" {
-					inASMContext = true
-				}
-				break
-			}
-		}
+		inASMContext := l.isInASMContext(content, pos)
 
 		// Check if this number is followed by a parenthesis (memory addressing)
 		numberEnd := pos

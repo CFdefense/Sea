@@ -10,7 +10,7 @@ import (
 	debugger "github.com/CFdefense/compiler/src/debug"
 )
 
-// lexer context object
+// Lexer context object
 type Lexer struct {
 	token_stream []Token
 	content      map[string]string
@@ -21,7 +21,7 @@ type Lexer struct {
 	tokenDFAs    []*DFA // store DFA tokens
 }
 
-// lexer object constructor
+// Lexer object constructor
 func InitializeLexer(debug bool) *Lexer {
 	return &Lexer{
 		token_stream: []Token{},
@@ -34,7 +34,7 @@ func InitializeLexer(debug bool) *Lexer {
 	}
 }
 
-// function responsible for all things lexical analysis
+// Function responsible for all things lexical analysis
 func (l *Lexer) LexicalAnalysis(path string) {
 
 	// begin lexer scan of target file
@@ -51,7 +51,7 @@ func (l *Lexer) LexicalAnalysis(path string) {
 	l.Analyze()
 }
 
-// function to allow the lexer to scan
+// Function to allow the lexer to scan
 // going to implement directory based
 // this will allow future scaling to
 // 'project-compilation' vs 'file-compilation'
@@ -98,7 +98,7 @@ func (l *Lexer) Scan(path string) {
 	l.debug.DebugLog(fmt.Sprintf("Found Files: %v", fileNames), false)
 }
 
-// function to begin analysis
+// Function to begin analysis
 // will result in scan -> token stream
 func (l *Lexer) Analyze() {
 	// TODO Analyze and create token stream
@@ -122,7 +122,7 @@ func (l *Lexer) Analyze() {
 	l.tokenize()
 }
 
-// thompson's algorithm impl:
+// Thompson's algorithm implementation
 // 1. convert each token regex pattern to NFAs
 // 2. store NFAs in lexer struct for later use in steps 2, 3 ^^
 func (l *Lexer) buildTokenNFAs() {
@@ -312,7 +312,7 @@ func (l *Lexer) tokenize() {
 	}
 }
 
-// function to reset a lexer
+// Function to reset a lexer
 // mostly used in repeated test executions
 // can also be used in between compiling multiple files
 func (l *Lexer) ResetLexer() {
@@ -324,12 +324,12 @@ func (l *Lexer) ResetLexer() {
 	l.tokenDFAs = []*DFA{} // reset DFAs
 }
 
-// function to get the token stream
+// Function to get the token stream
 func (l *Lexer) GetTokenStream() []Token {
 	return l.token_stream
 }
 
-// function to set the content of the lexer
+// Function to set the content of the lexer
 func (l *Lexer) SetContent(content map[string]string) {
 	l.content = content
 }
